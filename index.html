@@ -16,15 +16,14 @@
 
 <style>
 :root{
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
 
-  /* Turquoise background */
   --bg1:#bff7f2;
   --bg2:#63e6df;
   --bg3:#2fd3cb;
 
-  --card:#ffffff;
-  --border:#e8eef7;
+  --card:rgba(255,255,255,.92);
+  --border:rgba(232,238,247,.95);
   --text:#163243;
   --muted:#4b6b7e;
 
@@ -40,10 +39,8 @@
 
   --paidRow:#eafff3;
   --paidRowHover:#d6ffe8;
-
   --unpaidRow:#ffecec;
   --unpaidRowHover:#ffdcdc;
-
   --overdueRow:#fff2cc;
   --overdueRowHover:#ffe8a3;
 
@@ -65,7 +62,7 @@ body{
 
 .wrap{ max-width: 1200px; margin: 0 auto; }
 
-h1{ margin: 0 0 6px; font-size: 30px; letter-spacing: 0.2px; }
+h1{ margin: 0 0 6px; font-size: 30px; letter-spacing: .2px; }
 .mini{ font-size: 12px; color: rgba(22,50,67,0.85); font-weight: 750; }
 
 .topbar{
@@ -78,17 +75,16 @@ h1{ margin: 0 0 6px; font-size: 30px; letter-spacing: 0.2px; }
 }
 
 .card{
-  background: rgba(255,255,255,0.92);
-  border: 1px solid rgba(232,238,247,0.9);
+  background: var(--card);
+  border: 1px solid var(--border);
   border-radius: 18px;
   padding: 18px;
   box-shadow: var(--shadow);
   margin-bottom: 18px;
   backdrop-filter: blur(6px);
-  position: relative;
 }
 
-.row{ display:flex; gap:12px; flex-wrap:wrap; align-items:end; }
+.row{ display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; }
 .spacer{ flex:1; }
 
 label{
@@ -97,18 +93,21 @@ label{
   display:block;
   margin-bottom:6px;
   font-weight: 850;
-  letter-spacing: 0.2px;
+  letter-spacing: .2px;
 }
 
-input, select, button{
+input, select, button, textarea{
   border-radius: 12px;
   border: 1px solid rgba(219,230,251,0.95);
   background: #ffffff;
   color: var(--text);
   padding: 10px 12px;
+  font-size: 14px;
 }
 
-input:focus, select:focus{
+textarea{ resize:vertical; min-height: 72px; }
+
+input:focus, select:focus, textarea:focus{
   outline:none;
   border-color: rgba(20,184,196,0.95);
   box-shadow: 0 0 0 3px rgba(20,184,196,0.22);
@@ -139,7 +138,7 @@ button:hover{ transform: translateY(-1px); filter: brightness(1.02); }
   box-shadow: 0 10px 18px rgba(124,58,237,0.16);
 }
 .btn-ghost{
-  background: rgba(255,255,255,0.8);
+  background: rgba(255,255,255,0.85);
   border: 1px solid rgba(219,230,251,0.95);
   color: var(--text);
   box-shadow: 0 8px 16px rgba(10,35,50,0.10);
@@ -214,7 +213,7 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
 .pill.overdue{ background: linear-gradient(90deg, #f59e0b, #d97706); }
 .pill.recurring{ background: linear-gradient(90deg, var(--purple), #a855f7); }
 
-.actions button{ margin-right: 8px; }
+.actions button{ margin-right: 8px; margin-bottom: 6px; }
 
 .section-title{
   display:flex;
@@ -235,77 +234,6 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
 }
 .checkbox input{ width: 16px; height: 16px; }
 
-/* PRINTABLE MONTHLY SUMMARY (hidden until print) */
-.print-summary{
-  display:none;
-  background:#fff;
-  border:1px solid #e5e7eb;
-  border-radius: 14px;
-  padding: 18px;
-  margin: 18px 0;
-  box-shadow: none;
-}
-.print-title{
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:12px;
-  border-bottom: 1px solid #e5e7eb;
-  padding-bottom: 10px;
-  margin-bottom: 12px;
-}
-.print-title h2{
-  margin:0;
-  font-size: 20px;
-  color:#111827;
-}
-.print-meta{
-  font-size: 12px;
-  color:#374151;
-  text-align:right;
-  white-space:nowrap;
-}
-.print-kpis{
-  display:flex;
-  gap:12px;
-  flex-wrap:wrap;
-  margin: 12px 0 6px;
-}
-.print-kpi{
-  border:1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 10px 12px;
-  min-width: 180px;
-}
-.print-kpi .k{
-  font-size: 11px;
-  color:#6b7280;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: 4px;
-}
-.print-kpi .v{
-  font-size: 16px;
-  font-weight: 900;
-  color:#111827;
-}
-.print-section{
-  margin-top: 12px;
-}
-.print-section h4{
-  margin: 14px 0 8px;
-  font-size: 14px;
-  color:#111827;
-}
-.print-table th, .print-table td{
-  padding: 8px 10px;
-  border-bottom: 1px solid #e5e7eb;
-  font-size: 12px;
-}
-.print-table th{
-  color:#374151;
-}
-
 /* Splash screen */
 .splash{
   position: fixed;
@@ -321,7 +249,6 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
     linear-gradient(135deg, var(--bg1), var(--bg2) 45%, var(--bg3));
   z-index: 9999;
 }
-
 .splash .logo{
   width: 120px;
   height: 120px;
@@ -333,7 +260,6 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
   box-shadow: 0 18px 40px rgba(10,35,50,0.18);
   position: relative;
 }
-
 .splash .logo::after{
   content:"$";
   font-size: 64px;
@@ -341,45 +267,98 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
   color: var(--purple);
   text-shadow: 0 2px 0 rgba(255,255,255,0.6);
 }
-
 .splash .title{
   font-size: 22px;
   font-weight: 1000;
   color: rgba(22,50,67,0.95);
   letter-spacing: 0.2px;
 }
-
 .splash .subtitle{
   font-size: 13px;
   font-weight: 800;
   color: rgba(75,107,126,0.95);
 }
-
 .splash.hide{
   opacity: 0;
   pointer-events: none;
   transition: opacity 350ms ease;
 }
 
-/* Print rules */
+/* Modal */
+.modal-backdrop{
+  position:fixed; inset:0;
+  background: rgba(0,0,0,0.25);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding: 18px;
+  z-index: 9998;
+}
+.modal{
+  width:min(720px, 100%);
+  background: rgba(255,255,255,0.96);
+  border: 1px solid rgba(232,238,247,0.95);
+  border-radius: 18px;
+  box-shadow: 0 20px 60px rgba(10,35,50,0.35);
+  padding: 16px;
+}
+.modal h4{ margin: 0 0 10px; font-size: 16px; }
+.modal .row{ align-items:flex-end; }
+.modal .footer{
+  display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap;
+  margin-top: 12px;
+}
+
+/* Printable summary */
+.print-summary{ display:none; }
 @media print{
-  body{
-    margin: 0;
-    background: #ffffff !important;
-  }
-  .wrap{ max-width: none; }
+  body{ margin: 0; background:#fff !important; }
   .no-print{ display:none !important; }
   .print-summary{ display:block !important; }
-  .card{
-    box-shadow: none !important;
-    backdrop-filter: none !important;
-    border: none !important;
-    background: transparent !important;
-    padding: 0 !important;
-    margin: 0 !important;
+  .card{ box-shadow:none !important; border:none !important; background:transparent !important; padding:0 !important; margin:0 !important; }
+}
+
+/* ===== Mobile-friendly bills table ===== */
+@media (max-width: 820px){
+  body{ margin: 12px; }
+  .card{ padding: 14px; }
+  h1{ font-size: 26px; }
+
+  /* Stack bills table into card rows */
+  table.responsive thead{ display:none; }
+  table.responsive, table.responsive tbody, table.responsive tr, table.responsive td{
+    display:block; width:100%;
   }
-  table{ page-break-inside: auto; }
-  tr{ page-break-inside: avoid; page-break-after: auto; }
+  table.responsive tr{
+    border: 1px solid rgba(232,238,247,0.95);
+    border-radius: 16px;
+    margin: 12px 0;
+    overflow:hidden;
+  }
+  table.responsive td{
+    border-bottom: 1px solid rgba(238,242,250,0.95);
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    padding: 10px 12px;
+  }
+  table.responsive td:last-child{ border-bottom:none; }
+  table.responsive td::before{
+    content: attr(data-label);
+    font-size: 12px;
+    font-weight: 900;
+    color: rgba(75,107,126,0.95);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .actions{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    align-items:stretch;
+  }
+  .actions button{ width:100%; margin:0; }
 }
 </style>
 </head>
@@ -394,126 +373,37 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
 
 <div class="wrap">
 
-  <!-- Top controls -->
   <div class="topbar no-print">
     <div>
       <h1>Monthly Budget Tracker</h1>
-      <div class="mini">
-        Due day = 1–31 • Sorted least → most • Total owed decreases as you mark bills paid • Overdue highlights automatically
-      </div>
+      <div class="mini">Due day = 1–31 • Sorted least → most • Total owed decreases as you mark bills paid • Overdue highlights automatically</div>
     </div>
 
-    <div class="row" style="align-items:flex-end;">
+    <div class="row">
       <div>
         <label>Month label</label>
         <input id="monthLabel" placeholder="e.g., March 2026" style="min-width:220px;" />
       </div>
 
-      <button class="btn-secondary" id="printSummaryBtn" type="button" title="Print / Save as PDF (monthly summary)">
-        Printable Summary
-      </button>
+      <button class="btn-secondary" id="printBtn" type="button">Printable Summary</button>
 
-      <button class="btn-secondary" id="saveMonthBtn" type="button">Save Month</button>
-      <input id="loadFileInput" type="file" accept=".json" style="display:none;" />
-      <button class="btn-secondary" id="loadMonthBtn" type="button">Load Month</button>
+      <button class="btn-secondary" id="saveBtn" type="button">Save Month</button>
+      <input id="loadFile" type="file" accept=".json" style="display:none;">
+      <button class="btn-secondary" id="loadBtn" type="button">Load Month</button>
 
-      <button class="btn-secondary" id="duplicateMonthBtn" type="button" title="Copies income + bills, clears Paid, keeps recurring flags">
-        Duplicate Month
-      </button>
-
-      <button class="btn-danger" id="newMonthBtn" type="button" title="Clears month, but keeps recurring bills (unpaid)">
-        New Month (carry recurring)
-      </button>
+      <button class="btn-danger" id="newBtn" type="button" title="Clears month but keeps recurring bills (unpaid)">New Month (carry recurring)</button>
     </div>
   </div>
 
-  <!-- PRINTABLE MONTHLY SUMMARY -->
-  <div class="print-summary" id="printSummary">
-    <div class="print-title">
-      <div>
-        <h2 id="printMonthTitle">Monthly Summary</h2>
-        <div style="font-size:12px;color:#6b7280;margin-top:2px;">Budget snapshot for the month</div>
-      </div>
-      <div class="print-meta">
-        <div><b>Printed:</b> <span id="printDate"></span></div>
-      </div>
-    </div>
-
-    <div class="print-kpis">
-      <div class="print-kpi">
-        <div class="k">Income</div>
-        <div class="v" id="printIncome">$0.00</div>
-      </div>
-      <div class="print-kpi">
-        <div class="k">Total Owed (Unpaid Bills)</div>
-        <div class="v" id="printOwed">$0.00</div>
-      </div>
-      <div class="print-kpi">
-        <div class="k">Left If On Budget</div>
-        <div class="v" id="printLeft">$0.00</div>
-      </div>
-      <div class="print-kpi">
-        <div class="k">Paid Bills Total</div>
-        <div class="v" id="printPaidTotal">$0.00</div>
-      </div>
-    </div>
-
-    <div class="print-section">
-      <h4>Income Lines</h4>
-      <table class="print-table" style="width:100%; border-collapse:collapse;">
-        <thead>
-          <tr>
-            <th align="left">Source</th>
-            <th align="right">Amount</th>
-          </tr>
-        </thead>
-        <tbody id="printIncomeTbody"></tbody>
-      </table>
-    </div>
-
-    <div class="print-section">
-      <h4>Bills</h4>
-      <table class="print-table" style="width:100%; border-collapse:collapse;">
-        <thead>
-          <tr>
-            <th align="left">Bill</th>
-            <th align="right">Due Day</th>
-            <th align="right">Amount</th>
-            <th align="left">Status</th>
-            <th align="left">Recurring</th>
-            <th align="left">Notes</th>
-          </tr>
-        </thead>
-        <tbody id="printBillsTbody"></tbody>
-      </table>
-    </div>
-
-    <div style="margin-top:14px; font-size:11px; color:#6b7280;">
-      Tip: In the print dialog, choose “Save as PDF” to store this monthly summary.
-    </div>
-  </div>
-
-  <!-- Totals card -->
+  <!-- Totals -->
   <div class="card no-print">
     <div class="section-title">
       <h3 style="margin:0;">Totals</h3>
       <div class="badges">
-        <div class="badge income">
-          <span class="label">Income:</span>
-          <span class="value" id="totalIncome">$0.00</span>
-        </div>
-        <div class="badge owed">
-          <span class="label">Total owed:</span>
-          <span class="value" id="totalOwed">$0.00</span>
-        </div>
-        <div class="badge left">
-          <span class="label">Left if on budget:</span>
-          <span class="value" id="leftIfOnBudget">$0.00</span>
-        </div>
-        <div class="badge paidtotal">
-          <span class="label">Paid total:</span>
-          <span class="value" id="paidTotal">$0.00</span>
-        </div>
+        <div class="badge income"><span class="label">Income:</span><span class="value" id="totalIncome">$0.00</span></div>
+        <div class="badge owed"><span class="label">Total owed:</span><span class="value" id="totalOwed">$0.00</span></div>
+        <div class="badge left"><span class="label">Left if on budget:</span><span class="value" id="leftIfOnBudget">$0.00</span></div>
+        <div class="badge paidtotal"><span class="label">Paid total:</span><span class="value" id="paidTotal">$0.00</span></div>
       </div>
     </div>
     <div class="smallhint">Marking a bill paid subtracts it from “Total owed” automatically.</div>
@@ -537,23 +427,19 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
       </div>
       <div>
         <label>&nbsp;</label>
-        <button class="btn-primary" id="addIncomeBtn" type="button">Add Income</button>
+        <button class="btn-primary" id="addIncome" type="button">Add Income</button>
       </div>
       <div class="spacer"></div>
       <div>
         <label>&nbsp;</label>
-        <button class="btn-ghost" id="clearIncomeBtn" type="button">Clear Income</button>
+        <button class="btn-ghost" id="clearIncome" type="button">Clear Income</button>
       </div>
     </div>
 
     <div style="overflow:auto; margin-top:12px;">
       <table>
         <thead>
-          <tr>
-            <th>Source</th>
-            <th>Amount</th>
-            <th>Actions</th>
-          </tr>
+          <tr><th>Source</th><th>Amount</th><th>Actions</th></tr>
         </thead>
         <tbody id="incomeTbody"></tbody>
       </table>
@@ -564,7 +450,7 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
   <div class="card no-print">
     <div class="section-title">
       <h3 style="margin:0;">Bills</h3>
-      <div class="mini">Recurring bills can carry to the next month automatically.</div>
+      <div class="mini">Import your bills, then edit any amounts/due days right here.</div>
     </div>
 
     <div class="row" style="margin-top:10px;">
@@ -572,39 +458,34 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
         <label>Bill name</label>
         <input id="billName" placeholder="Power, Mortgage, etc." style="min-width:240px;" />
       </div>
-
       <div>
         <label>Due day (1–31)</label>
-        <input id="dueDay" type="number" min="1" max="31" placeholder="1" />
+        <input id="billDue" type="number" min="1" max="31" placeholder="1" />
       </div>
-
       <div>
         <label>Amount</label>
-        <input id="billAmount" type="number" step="0.01" placeholder="0.00" />
+        <input id="billAmt" type="number" step="0.01" placeholder="0.00" />
       </div>
-
       <div class="checkbox" title="Recurring bills carry forward to new month">
         <input id="billRecurring" type="checkbox" />
         <label for="billRecurring" style="margin:0; font-size:12px; color:var(--muted);">Recurring</label>
       </div>
-
       <div style="min-width:260px; flex: 1;">
         <label>Notes</label>
         <input id="billNotes" placeholder="optional" style="width:100%;" />
       </div>
 
       <div class="spacer"></div>
-
-      <button class="btn-primary" id="addBillBtn" type="button">Add Bill</button>
-      <button class="btn-danger" id="clearBillsBtn" type="button">Clear Bills</button>
+      <button class="btn-primary" id="addBill" type="button">Add Bill</button>
+      <button class="btn-danger" id="clearBills" type="button">Clear Bills</button>
     </div>
 
     <hr style="margin:18px 0; border:none; border-top:1px solid rgba(232,238,247,0.95);">
 
     <div class="row" style="align-items:end;">
       <div>
-        <label>Import Excel / CSV</label>
-        <input id="fileInput" type="file" accept=".xlsx,.xls,.csv" />
+        <label>Upload Excel / CSV</label>
+        <input id="importFile" type="file" accept=".xlsx,.xls,.csv" />
       </div>
       <button class="btn-secondary" id="importBtn" type="button">Import</button>
 
@@ -623,13 +504,13 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
     </div>
 
     <div class="smallhint">
-      Import columns supported (any case/spaces): <b>Name</b>, <b>DueDay</b> or <b>DueDate</b> (we keep day only),
+      Supported headers (any case/spaces): <b>Name</b>, <b>DueDay</b> or <b>DueDate</b> (we keep day only),
       <b>Amount</b>, <b>Notes</b>, <b>Paid</b>, <b>Recurring</b>.
-      <br>Tip: If your sheet uses negative amounts, we automatically convert them to positive “amount owed.”
+      If amounts are negative in your sheet, we convert to positive “amount owed.”
     </div>
 
     <div style="overflow:auto; margin-top:12px;">
-      <table>
+      <table class="responsive" id="billsTable">
         <thead>
           <tr>
             <th>Status</th>
@@ -645,26 +526,75 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
       </table>
     </div>
   </div>
+
+  <!-- Printable Summary (simple) -->
+  <div class="print-summary" id="printSummary">
+    <h2 id="printTitle">Monthly Summary</h2>
+    <div id="printMeta" style="font-size:12px;color:#374151;margin-bottom:10px;"></div>
+    <div id="printTotals" style="font-weight:900;margin:12px 0;"></div>
+    <h3 style="color:#111827;background:none;-webkit-text-fill-color:initial;">Income</h3>
+    <div id="printIncome"></div>
+    <h3 style="color:#111827;background:none;-webkit-text-fill-color:initial;margin-top:16px;">Bills</h3>
+    <div id="printBills"></div>
+  </div>
+
 </div>
 
-<!-- XLSX for Excel import -->
+<!-- Modal for editing bills -->
+<div class="modal-backdrop" id="modalBackdrop" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <h4 id="modalTitle">Edit Bill</h4>
+
+    <div class="row">
+      <div style="min-width:220px; flex:1;">
+        <label>Bill name</label>
+        <input id="editName" />
+      </div>
+      <div style="width:140px;">
+        <label>Due day (1–31)</label>
+        <input id="editDue" type="number" min="1" max="31" />
+      </div>
+      <div style="width:160px;">
+        <label>Amount</label>
+        <input id="editAmt" type="number" step="0.01" />
+      </div>
+    </div>
+
+    <div style="margin-top:10px;">
+      <label>Notes</label>
+      <textarea id="editNotes"></textarea>
+    </div>
+
+    <div class="row" style="margin-top:10px;">
+      <div class="checkbox">
+        <input id="editPaid" type="checkbox">
+        <label for="editPaid" style="margin:0;">Paid</label>
+      </div>
+      <div class="checkbox">
+        <input id="editRecurring" type="checkbox">
+        <label for="editRecurring" style="margin:0;">Recurring</label>
+      </div>
+      <div class="spacer"></div>
+    </div>
+
+    <div class="footer">
+      <button class="btn-ghost" id="cancelEdit" type="button">Cancel</button>
+      <button class="btn-secondary" id="saveEdit" type="button">Save Changes</button>
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <script>
 (() => {
-  const STORAGE_KEY = "monthly_budget_tracker_pro_v1";
+  const STORAGE_KEY = "budget_app_state_v2";
 
   let state = loadState();
+  let editingId = null;
 
   // Elements
   const monthLabelEl = document.getElementById("monthLabel");
-  const printSummaryBtn = document.getElementById("printSummaryBtn");
-
-  const saveMonthBtn = document.getElementById("saveMonthBtn");
-  const loadMonthBtn = document.getElementById("loadMonthBtn");
-  const loadFileInput = document.getElementById("loadFileInput");
-  const duplicateMonthBtn = document.getElementById("duplicateMonthBtn");
-  const newMonthBtn = document.getElementById("newMonthBtn");
 
   const totalIncomeEl = document.getElementById("totalIncome");
   const totalOwedEl = document.getElementById("totalOwed");
@@ -673,35 +603,54 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
 
   const incomeSourceEl = document.getElementById("incomeSource");
   const incomeAmountEl = document.getElementById("incomeAmount");
-  const addIncomeBtn = document.getElementById("addIncomeBtn");
-  const clearIncomeBtn = document.getElementById("clearIncomeBtn");
   const incomeTbody = document.getElementById("incomeTbody");
 
   const billNameEl = document.getElementById("billName");
-  const dueDayEl = document.getElementById("dueDay");
-  const billAmountEl = document.getElementById("billAmount");
+  const billDueEl = document.getElementById("billDue");
+  const billAmtEl = document.getElementById("billAmt");
   const billNotesEl = document.getElementById("billNotes");
   const billRecurringEl = document.getElementById("billRecurring");
-  const addBillBtn = document.getElementById("addBillBtn");
-  const clearBillsBtn = document.getElementById("clearBillsBtn");
 
-  const fileInputEl = document.getElementById("fileInput");
-  const importBtnEl = document.getElementById("importBtn");
-  const filterEl = document.getElementById("filter");
-  const exportBtnEl = document.getElementById("exportBtn");
   const billsTbody = document.getElementById("billsTbody");
+  const filterEl = document.getElementById("filter");
+  const importFileEl = document.getElementById("importFile");
 
-  // Print summary elements
-  const printMonthTitleEl = document.getElementById("printMonthTitle");
-  const printDateEl = document.getElementById("printDate");
-  const printIncomeEl = document.getElementById("printIncome");
-  const printOwedEl = document.getElementById("printOwed");
-  const printLeftEl = document.getElementById("printLeft");
-  const printPaidTotalEl = document.getElementById("printPaidTotal");
-  const printIncomeTbody = document.getElementById("printIncomeTbody");
-  const printBillsTbody = document.getElementById("printBillsTbody");
+  // Buttons
+  document.getElementById("addIncome").addEventListener("click", addIncome);
+  document.getElementById("clearIncome").addEventListener("click", clearIncome);
+
+  document.getElementById("addBill").addEventListener("click", addBill);
+  document.getElementById("clearBills").addEventListener("click", clearBills);
+
+  document.getElementById("importBtn").addEventListener("click", importBills);
+  document.getElementById("exportBtn").addEventListener("click", exportCSV);
+
+  document.getElementById("saveBtn").addEventListener("click", saveMonthFile);
+  document.getElementById("loadBtn").addEventListener("click", () => document.getElementById("loadFile").click());
+  document.getElementById("loadFile").addEventListener("change", loadMonthFile);
+  document.getElementById("newBtn").addEventListener("click", newMonthCarryRecurring);
+
+  document.getElementById("printBtn").addEventListener("click", printSummary);
+  filterEl.addEventListener("change", render);
+
+  monthLabelEl.addEventListener("input", () => { state.monthLabel = monthLabelEl.value.trim(); saveState(); });
+
+  // Modal elements
+  const modalBackdrop = document.getElementById("modalBackdrop");
+  const editNameEl = document.getElementById("editName");
+  const editDueEl = document.getElementById("editDue");
+  const editAmtEl = document.getElementById("editAmt");
+  const editNotesEl = document.getElementById("editNotes");
+  const editPaidEl = document.getElementById("editPaid");
+  const editRecurringEl = document.getElementById("editRecurring");
+  document.getElementById("cancelEdit").addEventListener("click", closeModal);
+  document.getElementById("saveEdit").addEventListener("click", saveEdit);
 
   // Helpers
+  function uid(){
+    return (crypto?.randomUUID?.() || ("id-" + Math.random().toString(16).slice(2)));
+  }
+
   function escapeHtml(s){
     return String(s ?? "")
       .replaceAll("&","&amp;")
@@ -717,15 +666,37 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
     return safe.toLocaleString(undefined, { style:"currency", currency:"USD" });
   }
 
-  // Always treat owed amount as positive
-  function toOwedAmount(raw){
+  // Treat owed amount as positive
+  function owedAmount(raw){
     const n = Number(raw);
-    if (!Number.isFinite(n)) return 0;
+    if(!Number.isFinite(n)) return 0;
     return Math.abs(n);
   }
 
+  function todayDay(){
+    return new Date().getDate();
+  }
+
+  function overdue(b){
+    const d = Number(b.dueDay);
+    if(!Number.isFinite(d) || d < 1 || d > 31) return false;
+    return !b.paid && d < todayDay();
+  }
+
+  function cleanDue(d){
+    const n = Number(d);
+    if(Number.isFinite(n) && n >= 1 && n <= 31) return Math.trunc(n);
+    return 999;
+  }
+
+  function totals(){
+    const totalIncome = state.incomes.reduce((s,i)=> s + (Number(i.amount)||0), 0);
+    const totalOwed = state.bills.filter(b=>!b.paid).reduce((s,b)=> s + owedAmount(b.amount), 0);
+    const paidTotal = state.bills.filter(b=>b.paid).reduce((s,b)=> s + owedAmount(b.amount), 0);
+    return { totalIncome, totalOwed, paidTotal, left: totalIncome - totalOwed };
+  }
+
   function saveState(){
-    state.monthLabel = monthLabelEl.value.trim();
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }
 
@@ -733,141 +704,74 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
     try{
       const raw = localStorage.getItem(STORAGE_KEY);
       if(!raw) return { monthLabel:"", incomes:[], bills:[] };
-      const parsed = JSON.parse(raw);
+      const p = JSON.parse(raw);
       return {
-        monthLabel: parsed.monthLabel || "",
-        incomes: Array.isArray(parsed.incomes) ? parsed.incomes : [],
-        bills: Array.isArray(parsed.bills) ? parsed.bills : []
+        monthLabel: String(p.monthLabel || ""),
+        incomes: Array.isArray(p.incomes) ? p.incomes : [],
+        bills: Array.isArray(p.bills) ? p.bills : []
       };
     }catch{
       return { monthLabel:"", incomes:[], bills:[] };
     }
   }
 
-  function totals(){
-    const totalIncome = state.incomes.reduce((sum,i) => sum + (Number(i.amount) || 0), 0);
-    const totalOwed = state.bills.filter(b => !b.paid).reduce((sum,b) => sum + toOwedAmount(b.amount), 0);
-    const paidTotal = state.bills.filter(b => b.paid).reduce((sum,b) => sum + toOwedAmount(b.amount), 0);
-    const left = totalIncome - totalOwed;
-    return { totalIncome, totalOwed, paidTotal, left };
+  // Income
+  function addIncome(){
+    const source = incomeSourceEl.value.trim();
+    const amount = Number(incomeAmountEl.value || 0);
+    if(!source) return alert("Enter an income source.");
+    if(!Number.isFinite(amount)) return alert("Enter a valid income amount.");
+
+    state.incomes.push({ id: uid(), source, amount });
+    incomeSourceEl.value = "";
+    incomeAmountEl.value = "";
+    render();
   }
 
-  function recalcTotals(){
-    const t = totals();
-    totalIncomeEl.textContent = fmtMoney(t.totalIncome);
-    totalOwedEl.textContent = fmtMoney(t.totalOwed);
-    leftIfOnBudgetEl.textContent = fmtMoney(t.left);
-    paidTotalEl.textContent = fmtMoney(t.paidTotal);
-  }
-
-  function todayDayOfMonth(){
-    return new Date().getDate();
-  }
-
-  function isOverdue(b){
-    const due = Number(b.dueDay);
-    if (!Number.isFinite(due) || due < 1 || due > 31) return false;
-    if (b.paid) return false;
-    return due < todayDayOfMonth();
-  }
-
-  // Printable Summary
-  function buildPrintableSummary(){
-    const label = monthLabelEl.value.trim();
-    printMonthTitleEl.textContent = label ? `Monthly Summary — ${label}` : "Monthly Summary";
-    printDateEl.textContent = new Date().toLocaleString();
-
-    const t = totals();
-    printIncomeEl.textContent = fmtMoney(t.totalIncome);
-    printOwedEl.textContent = fmtMoney(t.totalOwed);
-    printLeftEl.textContent = fmtMoney(t.left);
-    printPaidTotalEl.textContent = fmtMoney(t.paidTotal);
-
-    // Income table
-    printIncomeTbody.innerHTML = "";
-    if (state.incomes.length === 0){
-      const tr = document.createElement("tr");
-      tr.innerHTML = `<td colspan="2" style="color:#6b7280;">No income entries</td>`;
-      printIncomeTbody.appendChild(tr);
-    } else {
-      for (const i of state.incomes){
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${escapeHtml(i.source)}</td>
-          <td align="right">${fmtMoney(Number(i.amount || 0))}</td>
-        `;
-        printIncomeTbody.appendChild(tr);
-      }
-    }
-
-    // Bills sorted by dueDay
-    const sortedBills = [...state.bills].sort((a,b) => cleanDue(a.dueDay) - cleanDue(b.dueDay));
-
-    printBillsTbody.innerHTML = "";
-    if (sortedBills.length === 0){
-      const tr = document.createElement("tr");
-      tr.innerHTML = `<td colspan="6" style="color:#6b7280;">No bills</td>`;
-      printBillsTbody.appendChild(tr);
-    } else {
-      for (const b of sortedBills){
-        const status = b.paid ? "PAID" : (isOverdue(b) ? "OVERDUE" : "UNPAID");
-        const recurring = b.recurring ? "Yes" : "";
-        const due = cleanDue(b.dueDay) === 999 ? "" : String(cleanDue(b.dueDay));
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${escapeHtml(b.name)}</td>
-          <td align="right">${escapeHtml(due)}</td>
-          <td align="right">${fmtMoney(toOwedAmount(b.amount))}</td>
-          <td>${escapeHtml(status)}</td>
-          <td>${escapeHtml(recurring)}</td>
-          <td>${escapeHtml(b.notes || "")}</td>
-        `;
-        printBillsTbody.appendChild(tr);
-      }
+  function clearIncome(){
+    if(confirm("Clear all income lines?")){
+      state.incomes = [];
+      render();
     }
   }
 
-  printSummaryBtn.addEventListener("click", () => {
-    buildPrintableSummary();
-    window.print();
-  });
-
-  // Income actions
   window.deleteIncome = function(id){
     state.incomes = state.incomes.filter(i => i.id !== id);
     render();
   };
 
-  addIncomeBtn.addEventListener("click", () => {
-    const source = incomeSourceEl.value.trim();
-    const amount = Number(incomeAmountEl.value || 0);
+  // Bills
+  function addBill(){
+    const name = billNameEl.value.trim();
+    const dueDay = Number(billDueEl.value);
+    const amount = Number(billAmtEl.value || 0);
+    const notes = billNotesEl.value.trim();
+    const recurring = !!billRecurringEl.checked;
 
-    if(!source) return alert("Enter an income source.");
-    if(!Number.isFinite(amount)) return alert("Enter a valid income amount.");
+    if(!name) return alert("Please enter a bill name.");
+    if(!Number.isFinite(dueDay) || dueDay < 1 || dueDay > 31) return alert("Due day must be 1–31.");
 
-    state.incomes.push({ id: crypto.randomUUID(), source, amount });
-    incomeSourceEl.value = "";
-    incomeAmountEl.value = "";
+    state.bills.push({ id: uid(), name, dueDay, amount, notes, recurring, paid:false });
+
+    billNameEl.value = "";
+    billDueEl.value = "";
+    billAmtEl.value = "";
+    billNotesEl.value = "";
+    billRecurringEl.checked = false;
     render();
-  });
+  }
 
-  clearIncomeBtn.addEventListener("click", () => {
-    if(confirm("Clear all income lines for this month?")){
-      state.incomes = [];
+  function clearBills(){
+    if(confirm("Clear all bills?")){
+      state.bills = [];
       render();
     }
-  });
+  }
 
-  // Bill actions
-  window.toggleBill = function(id){
+  window.togglePaid = function(id){
     const b = state.bills.find(x => x.id === id);
     if(!b) return;
     b.paid = !b.paid;
-    render();
-  };
-
-  window.deleteBill = function(id){
-    state.bills = state.bills.filter(b => b.id !== id);
     render();
   };
 
@@ -878,48 +782,63 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
     render();
   };
 
-  addBillBtn.addEventListener("click", () => {
-    const name = billNameEl.value.trim();
-    const dueDay = Number(dueDayEl.value);
-    const amount = Number(billAmountEl.value || 0);
-    const notes = billNotesEl.value.trim();
-    const recurring = !!billRecurringEl.checked;
+  window.deleteBill = function(id){
+    state.bills = state.bills.filter(b => b.id !== id);
+    render();
+  };
 
-    if(!name) return alert("Please enter a bill name.");
+  window.editBill = function(id){
+    const b = state.bills.find(x => x.id === id);
+    if(!b) return;
+
+    editingId = id;
+    editNameEl.value = b.name || "";
+    editDueEl.value = (b.dueDay ?? "");
+    editAmtEl.value = (Number(b.amount) || 0);
+    editNotesEl.value = b.notes || "";
+    editPaidEl.checked = !!b.paid;
+    editRecurringEl.checked = !!b.recurring;
+
+    modalBackdrop.style.display = "flex";
+    modalBackdrop.setAttribute("aria-hidden","false");
+  };
+
+  function closeModal(){
+    editingId = null;
+    modalBackdrop.style.display = "none";
+    modalBackdrop.setAttribute("aria-hidden","true");
+  }
+
+  function saveEdit(){
+    const b = state.bills.find(x => x.id === editingId);
+    if(!b) return closeModal();
+
+    const name = editNameEl.value.trim();
+    const dueDay = Number(editDueEl.value);
+    const amount = Number(editAmtEl.value || 0);
+    const notes = editNotesEl.value.trim();
+
+    if(!name) return alert("Bill name is required.");
     if(!Number.isFinite(dueDay) || dueDay < 1 || dueDay > 31) return alert("Due day must be 1–31.");
 
-    state.bills.push({
-      id: crypto.randomUUID(),
-      name,
-      dueDay,
-      amount,
-      notes,
-      recurring,
-      paid: false
-    });
+    b.name = name;
+    b.dueDay = dueDay;
+    b.amount = amount;
+    b.notes = notes;
+    b.paid = !!editPaidEl.checked;
+    b.recurring = !!editRecurringEl.checked;
 
-    billNameEl.value = "";
-    dueDayEl.value = "";
-    billAmountEl.value = "";
-    billNotesEl.value = "";
-    billRecurringEl.checked = false;
+    closeModal();
     render();
-  });
+  }
 
-  clearBillsBtn.addEventListener("click", () => {
-    if(confirm("Clear all bills for this month?")){
-      state.bills = [];
-      render();
-    }
-  });
-
-  // Month save/load/new/duplicate
-  saveMonthBtn.addEventListener("click", () => {
+  // Month save/load
+  function saveMonthFile(){
     state.monthLabel = monthLabelEl.value.trim();
 
     const payload = {
-      app: "MonthlyBudgetTracker",
-      version: 1,
+      app: "BudgetApp",
+      version: 2,
       savedAt: new Date().toISOString(),
       monthLabel: state.monthLabel || "",
       incomes: state.incomes,
@@ -937,20 +856,15 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
     a.download = `${filenameSafe}.json`;
     a.click();
     URL.revokeObjectURL(a.href);
-  });
+  }
 
-  loadMonthBtn.addEventListener("click", () => {
-    loadFileInput.value = "";
-    loadFileInput.click();
-  });
-
-  loadFileInput.addEventListener("change", async () => {
-    const file = loadFileInput.files?.[0];
+  async function loadMonthFile(e){
+    const file = e.target.files?.[0];
     if(!file) return;
 
     try{
-      const text = await file.text();
-      const data = JSON.parse(text);
+      const txt = await file.text();
+      const data = JSON.parse(txt);
 
       state = {
         monthLabel: String(data.monthLabel || ""),
@@ -960,46 +874,91 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
 
       render();
       alert("Month loaded.");
-    }catch(e){
-      console.error(e);
-      alert("Could not load that file. Make sure it is a .json saved from this tracker.");
+    }catch{
+      alert("Could not load that file. Make sure it is a JSON saved from this tracker.");
+    }finally{
+      e.target.value = "";
     }
-  });
+  }
 
-  duplicateMonthBtn.addEventListener("click", () => {
-    if(!confirm("Duplicate this month?\n- Copies Income + Bills\n- Clears all Paid checkmarks\n- Keeps Recurring flags")) return;
+  function newMonthCarryRecurring(){
+    if(!confirm("Start a NEW month?\n- Clears Income\n- Clears non-recurring bills\n- Carries recurring bills forward (unpaid)\nTip: Save Month first.")) return;
 
-    const nextLabel = suggestNextMonthLabel(monthLabelEl.value.trim());
-    const newIncomes = state.incomes.map(i => ({ ...i, id: crypto.randomUUID() }));
-    const newBills = state.bills.map(b => ({ ...b, id: crypto.randomUUID(), paid: false }));
-
-    state = { monthLabel: nextLabel, incomes: newIncomes, bills: newBills };
-    render();
-  });
-
-  newMonthBtn.addEventListener("click", () => {
-    if(!confirm("Start a NEW month?\n- Clears Income\n- Clears non-recurring bills\n- Carries recurring bills forward (unpaid)\nTip: click Save Month first.")) return;
-
-    const nextLabel = suggestNextMonthLabel(monthLabelEl.value.trim());
     const carried = state.bills
       .filter(b => b.recurring)
-      .map(b => ({ ...b, id: crypto.randomUUID(), paid: false }));
+      .map(b => ({ ...b, id: uid(), paid:false }));
 
-    state = { monthLabel: nextLabel, incomes: [], bills: carried };
+    state = { monthLabel: state.monthLabel || "", incomes: [], bills: carried };
     render();
-  });
+  }
 
-  monthLabelEl.addEventListener("input", saveState);
+  // Import
+  function normKey(k){
+    return String(k || "").trim().toLowerCase().replace(/[^a-z0-9]/g,"");
+  }
 
-  // Import/Export Bills
-  importBtnEl.addEventListener("click", async () => {
-    const file = fileInputEl.files?.[0];
+  function parseBool(v){
+    if(v === true) return true;
+    const s = String(v ?? "").trim().toLowerCase();
+    return s === "true" || s === "yes" || s === "1" || s === "y" || s === "paid";
+  }
+
+  function parseAmount(v){
+    if(typeof v === "number") return v;
+    const cleaned = String(v || "").replace(/[^0-9.\-]/g,"");
+    const n = Number(cleaned);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function parseDueDay(v){
+    if(typeof v === "number" && v >= 1 && v <= 31) return Math.trunc(v);
+
+    if(typeof v === "string" && /^\d{1,2}$/.test(v.trim())){
+      const n = Number(v.trim());
+      if(n >= 1 && n <= 31) return n;
+    }
+
+    // ISO date
+    if(typeof v === "string" && /^\d{4}-\d{2}-\d{2}/.test(v.trim())){
+      const d = new Date(v.trim());
+      if(!isNaN(d)) return d.getDate();
+    }
+
+    // US date mm/dd/yyyy -> keep dd
+    if(typeof v === "string" && /^\d{1,2}\/\d{1,2}\/\d{2,4}$/.test(v.trim())){
+      const parts = v.trim().split("/");
+      const dd = Number(parts[1]);
+      if(Number.isFinite(dd) && dd >= 1 && dd <= 31) return dd;
+    }
+
+    // Date object
+    if(v instanceof Date && !isNaN(v)) return v.getDate();
+
+    // Excel serial (date)
+    if(typeof v === "number" && v > 31){
+      const d = XLSX.SSF.parse_date_code(v);
+      if(d && d.d >= 1 && d.d <= 31) return d.d;
+    }
+
+    return null;
+  }
+
+  function pick(map, keys){
+    for(const k of keys){
+      const nk = normKey(k);
+      if(nk in map && String(map[nk]).trim() !== "") return map[nk];
+    }
+    return "";
+  }
+
+  async function importBills(){
+    const file = importFileEl.files?.[0];
     if(!file) return alert("Select an Excel/CSV file first.");
 
     try{
       if(file.name.toLowerCase().endsWith(".csv")){
         const text = await file.text();
-        importBillsFromCSV(text);
+        importFromCSV(text);
         render();
         alert("Import complete.");
         return;
@@ -1009,120 +968,50 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
       const wb = XLSX.read(data, { cellDates:true });
       const sheet = wb.Sheets[wb.SheetNames[0]];
 
-      // Try header-based first
-      const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
-
-      // If that fails (weird layout), try raw array and map by header row
+      const rows = XLSX.utils.sheet_to_json(sheet, { defval:"" });
       if(rows.length === 0){
-        const aoa = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
-        importBillsFromAOA(aoa);
-      } else {
-        importBillsFromRows(rows);
+        const aoa = XLSX.utils.sheet_to_json(sheet, { header:1, defval:"" });
+        importFromAOA(aoa);
+      }else{
+        importFromRows(rows);
       }
 
       render();
       alert("Import complete.");
-    }catch(e){
-      console.error(e);
-      alert("Import failed. Check your file format. (We support .xlsx/.xls/.csv)");
+    }catch(err){
+      console.error(err);
+      alert("Import failed. Please check your file format (.xlsx/.xls/.csv).");
+    } finally {
+      importFileEl.value = "";
     }
-  });
-
-  function normKey(k){
-    return String(k || "")
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-z0-9]/g, "");
   }
 
-  function cleanDue(d){
-    const n = Number(d);
-    if (Number.isFinite(n) && n >= 1 && n <= 31) return Math.trunc(n);
-    return 999;
-  }
-
-  function parseDueDay(v){
-    // direct day number
-    if(typeof v === "number" && v >= 1 && v <= 31) return Math.trunc(v);
-
-    if(typeof v === "string" && /^\d{1,2}$/.test(v.trim())){
-      const n = Number(v.trim());
-      if(n >= 1 && n <= 31) return n;
-    }
-
-    // ISO date string
-    if(typeof v === "string" && /^\d{4}-\d{2}-\d{2}/.test(v.trim())){
-      const d = new Date(v.trim());
-      if(!isNaN(d)) return d.getDate();
-    }
-
-    // US date string
-    if(typeof v === "string" && /^\d{1,2}\/\d{1,2}\/\d{2,4}$/.test(v.trim())){
-      const parts = v.trim().split("/");
-      const dd = Number(parts[1]);
-      if(Number.isFinite(dd) && dd >= 1 && dd <= 31) return dd;
-    }
-
-    // Excel serial or Date object
-    if (v instanceof Date && !isNaN(v)) return v.getDate();
-
-    if(typeof v === "number" && v > 31){
-      const d = XLSX.SSF.parse_date_code(v);
-      if(d && d.d >= 1 && d.d <= 31) return d.d;
-    }
-
-    return null;
-  }
-
-  function parseAmount(v){
-    if(typeof v === "number") return v;
-    const cleaned = String(v || "").replace(/[^0-9.\-]/g, "");
-    const n = Number(cleaned);
-    return Number.isFinite(n) ? n : 0;
-  }
-
-  function parseBool(v){
-    if (v === true) return true;
-    const s = String(v ?? "").trim().toLowerCase();
-    return s === "true" || s === "yes" || s === "1" || s === "y" || s === "paid";
-  }
-
-  function pickField(map, keys){
-    for(const k of keys){
-      const nk = normKey(k);
-      if (nk in map && String(map[nk]).trim() !== "") return map[nk];
-    }
-    return "";
-  }
-
-  function importBillsFromRows(rows){
+  function importFromRows(rows){
     for(const r of rows){
       const map = {};
       for(const key of Object.keys(r)) map[normKey(key)] = r[key];
 
-      const name = String(
-        pickField(map, ["Name","Bill","BillName","Vendor","Payee"])
-      ).trim();
+      const name = String(pick(map, ["Name","Bill","BillName","Vendor","Payee"])).trim();
       if(!name) continue;
 
-      const dueRaw = pickField(map, ["DueDay","DueDate","Due","DateDue","NextDue","duedate","dueday"]);
+      const dueRaw = pick(map, ["DueDay","DueDate","Due","DateDue","NextDue","duedate","dueday"]);
       const dueDay = parseDueDay(dueRaw);
 
-      const amountRaw = pickField(map, ["Amount","Amt","amount"]);
+      const amountRaw = pick(map, ["Amount","Amt","amount"]);
       const amount = parseAmount(amountRaw);
 
-      const notes = String(pickField(map, ["Notes","Note","Memo"])).trim();
+      const notes = String(pick(map, ["Notes","Note","Memo"])).trim();
 
-      const paidRaw = pickField(map, ["Paid","Status"]);
-      const paid = parseBool(paidRaw);
+      const paid = parseBool(pick(map, ["Paid","Status"]));
+      const recurring = parseBool(pick(map, ["Recurring","Repeat"]));
 
-      const recurringRaw = pickField(map, ["Recurring","Repeat"]);
-      const recurring = parseBool(recurringRaw);
+      // IMPORTANT: dueDay is required for sorting/view; skip if missing
+      if(!dueDay) continue;
 
       state.bills.push({
-        id: crypto.randomUUID(),
+        id: uid(),
         name,
-        dueDay: (dueDay ?? null),
+        dueDay,
         amount,
         notes,
         recurring,
@@ -1131,20 +1020,18 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
     }
   }
 
-  // For weird sheets where headers aren't recognized via object keys
-  function importBillsFromAOA(aoa){
-    // Find a header row (contains "name" and "amount" somewhere)
-    let headerRowIndex = -1;
+  function importFromAOA(aoa){
+    let headerRow = -1;
     for(let i=0;i<Math.min(aoa.length, 25);i++){
       const row = aoa[i].map(x => normKey(x));
-      const hasName = row.some(x => x === "name");
-      const hasAmount = row.some(x => x === "amount" || x === "amt");
-      if(hasName && hasAmount){ headerRowIndex = i; break; }
+      const hasName = row.includes("name");
+      const hasAmount = row.includes("amount") || row.includes("amt");
+      if(hasName && hasAmount){ headerRow = i; break; }
     }
-    if(headerRowIndex === -1) return;
+    if(headerRow === -1) return;
 
-    const headers = aoa[headerRowIndex].map(h => normKey(h));
-    for(let r=headerRowIndex+1;r<aoa.length;r++){
+    const headers = aoa[headerRow].map(h => normKey(h));
+    for(let r=headerRow+1;r<aoa.length;r++){
       const row = aoa[r];
       if(!row || row.every(x => String(x).trim()==="")) continue;
 
@@ -1157,39 +1044,33 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
       if(!name) continue;
 
       const dueDay = parseDueDay(obj["dueday"] ?? obj["duedate"] ?? obj["due"]);
+      if(!dueDay) continue;
+
       const amount = parseAmount(obj["amount"] ?? obj["amt"]);
-      const notes = String(obj["notes"] ?? obj["note"] ?? "").trim();
+      const notes = String(obj["notes"] ?? obj["note"] ?? obj["memo"] ?? "").trim();
       const paid = parseBool(obj["paid"] ?? obj["status"]);
       const recurring = parseBool(obj["recurring"] ?? obj["repeat"]);
 
-      state.bills.push({
-        id: crypto.randomUUID(),
-        name,
-        dueDay: (dueDay ?? null),
-        amount,
-        notes,
-        recurring,
-        paid
-      });
+      state.bills.push({ id: uid(), name, dueDay, amount, notes, recurring, paid });
     }
   }
 
-  function importBillsFromCSV(text){
+  function importFromCSV(text){
     const lines = text.split(/\r?\n/).filter(l => l.trim().length);
     if(!lines.length) return;
 
     const headers = lines[0].split(",").map(h => h.trim());
     const rows = lines.slice(1).map(line => {
-      const cols = line.split(","); // simple CSV (works for your use case)
+      const cols = line.split(",");
       const obj = {};
-      headers.forEach((h,i) => obj[h] = (cols[i] ?? "").trim());
+      headers.forEach((h,i)=> obj[h] = (cols[i] ?? "").trim());
       return obj;
     });
-
-    importBillsFromRows(rows);
+    importFromRows(rows);
   }
 
-  exportBtnEl.addEventListener("click", () => {
+  // Export
+  function exportCSV(){
     const headers = ["Name","DueDay","Amount","Notes","Paid","Recurring"];
     const safe = (v) => {
       const s = String(v ?? "");
@@ -1214,79 +1095,68 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
     a.download = "bills.csv";
     a.click();
     URL.revokeObjectURL(a.href);
-  });
-
-  filterEl.addEventListener("change", render);
-
-  function suggestNextMonthLabel(current){
-    const s = String(current || "").trim();
-    if (!s) return "";
-
-    const parsed = tryParseMonthYear(s);
-    if (!parsed) return s + " (Next)";
-
-    const d = new Date(parsed.year, parsed.monthIndex, 1);
-    d.setMonth(d.getMonth() + 1);
-
-    const monthName = d.toLocaleString(undefined, { month:"long" });
-    return `${monthName} ${d.getFullYear()}`;
   }
 
-  function tryParseMonthYear(s){
-    const parts = s.replace(/\s+/g," ").trim().split(" ");
-    if (parts.length < 2) return null;
-    const year = Number(parts[parts.length - 1]);
-    if (!Number.isFinite(year) || year < 1900 || year > 3000) return null;
+  // Print summary
+  function printSummary(){
+    const t = totals();
+    const label = monthLabelEl.value.trim();
+    document.getElementById("printTitle").textContent = label ? `Monthly Summary — ${label}` : "Monthly Summary";
+    document.getElementById("printMeta").textContent = "Printed: " + new Date().toLocaleString();
+    document.getElementById("printTotals").textContent =
+      `Income: ${fmtMoney(t.totalIncome)}   |   Owed: ${fmtMoney(t.totalOwed)}   |   Left: ${fmtMoney(t.left)}   |   Paid: ${fmtMoney(t.paidTotal)}`;
 
-    const monthStr = parts.slice(0, parts.length - 1).join(" ").toLowerCase();
-    const months = [
-      "january","february","march","april","may","june",
-      "july","august","september","october","november","december"
-    ];
-    const short = months.map(m => m.slice(0,3));
+    // income list
+    const inc = state.incomes.length
+      ? "<ul>" + state.incomes.map(i => `<li>${escapeHtml(i.source)} — ${fmtMoney(Number(i.amount||0))}</li>`).join("") + "</ul>"
+      : "<div>No income entries</div>";
+    document.getElementById("printIncome").innerHTML = inc;
 
-    let idx = months.indexOf(monthStr);
-    if (idx === -1) idx = short.indexOf(monthStr.slice(0,3));
-    if (idx === -1) return null;
+    // bills list
+    const sorted = [...state.bills].sort((a,b)=> cleanDue(a.dueDay) - cleanDue(b.dueDay));
+    const bills = sorted.length
+      ? "<ol>" + sorted.map(b => {
+          const status = b.paid ? "PAID" : (overdue(b) ? "OVERDUE" : "UNPAID");
+          return `<li><b>${escapeHtml(b.name)}</b> — Due ${escapeHtml(b.dueDay)} — ${fmtMoney(owedAmount(b.amount))} — ${status}${b.recurring ? " (recurring)" : ""}${b.notes ? ` — ${escapeHtml(b.notes)}` : ""}</li>`;
+        }).join("") + "</ol>"
+      : "<div>No bills</div>";
+    document.getElementById("printBills").innerHTML = bills;
 
-    return { year, monthIndex: idx };
+    window.print();
   }
 
   // Render
   function render(){
     monthLabelEl.value = state.monthLabel || "";
 
-    // Income table
+    // income table
     incomeTbody.innerHTML = "";
     for(const i of state.incomes){
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>${escapeHtml(i.source)}</td>
-        <td>${fmtMoney(Number(i.amount || 0))}</td>
+        <td>${fmtMoney(Number(i.amount||0))}</td>
         <td><button class="btn-danger" type="button" onclick="deleteIncome('${i.id}')">Delete</button></td>
       `;
       incomeTbody.appendChild(tr);
     }
 
-    // Bills view
-    const filter = filterEl.value;
+    // bills view
     let view = state.bills;
-    if(filter === "paid") view = state.bills.filter(b => b.paid);
-    if(filter === "unpaid") view = state.bills.filter(b => !b.paid);
+    const f = filterEl.value;
+    if(f === "paid") view = state.bills.filter(b => b.paid);
+    if(f === "unpaid") view = state.bills.filter(b => !b.paid);
 
-    view = [...view].sort((a,b) => cleanDue(a.dueDay) - cleanDue(b.dueDay));
+    view = [...view].sort((a,b)=> cleanDue(a.dueDay) - cleanDue(b.dueDay));
 
     billsTbody.innerHTML = "";
     for(const b of view){
       const due = cleanDue(b.dueDay) === 999 ? "" : String(cleanDue(b.dueDay));
-      const overdue = isOverdue(b);
-
-      const tr = document.createElement("tr");
-      tr.className = b.paid ? "paid" : (overdue ? "overdue" : "unpaid");
+      const rowClass = b.paid ? "paid" : (overdue(b) ? "overdue" : "unpaid");
 
       const statusPill = b.paid
         ? `<span class="pill paid">PAID</span>`
-        : overdue
+        : overdue(b)
           ? `<span class="pill overdue">OVERDUE</span>`
           : `<span class="pill unpaid">UNPAID</span>`;
 
@@ -1294,15 +1164,19 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
         ? `<span class="pill recurring">YES</span>`
         : `<span class="mini" style="font-weight:800;">—</span>`;
 
+      const tr = document.createElement("tr");
+      tr.className = rowClass;
+
       tr.innerHTML = `
-        <td>${statusPill}</td>
-        <td>${escapeHtml(b.name)}</td>
-        <td>${escapeHtml(due)}</td>
-        <td>${fmtMoney(toOwedAmount(b.amount))}</td>
-        <td>${escapeHtml(b.notes || "")}</td>
-        <td>${recurringPill}</td>
-        <td class="actions">
-          <button class="btn-primary" type="button" onclick="toggleBill('${b.id}')">${b.paid ? "Mark Unpaid" : "Mark Paid"}</button>
+        <td data-label="Status">${statusPill}</td>
+        <td data-label="Bill">${escapeHtml(b.name)}</td>
+        <td data-label="Due Day">${escapeHtml(due)}</td>
+        <td data-label="Amount">${fmtMoney(owedAmount(b.amount))}</td>
+        <td data-label="Notes">${escapeHtml(b.notes || "")}</td>
+        <td data-label="Recurring">${recurringPill}</td>
+        <td data-label="Actions" class="actions">
+          <button class="btn-primary" type="button" onclick="togglePaid('${b.id}')">${b.paid ? "Mark Unpaid" : "Mark Paid"}</button>
+          <button class="btn-secondary" type="button" onclick="editBill('${b.id}')">Edit</button>
           <button class="btn-secondary" type="button" onclick="toggleRecurring('${b.id}')">${b.recurring ? "Unmark Recurring" : "Make Recurring"}</button>
           <button class="btn-danger" type="button" onclick="deleteBill('${b.id}')">Delete</button>
         </td>
@@ -1310,18 +1184,23 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
       billsTbody.appendChild(tr);
     }
 
-    recalcTotals();
+    // totals
+    const t = totals();
+    totalIncomeEl.textContent = fmtMoney(t.totalIncome);
+    totalOwedEl.textContent = fmtMoney(t.totalOwed);
+    leftIfOnBudgetEl.textContent = fmtMoney(t.left);
+    paidTotalEl.textContent = fmtMoney(t.paidTotal);
+
     saveState();
   }
 
-  // Hide splash after load
+  // Splash
   window.addEventListener("load", () => {
     const s = document.getElementById("splash");
     if(!s) return;
     setTimeout(() => s.classList.add("hide"), 450);
   });
 
-  // First render
   render();
 })();
 </script>
