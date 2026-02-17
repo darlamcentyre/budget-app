@@ -402,11 +402,14 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
       <div class="badges">
         <div class="badge income"><span class="label">Income:</span><span class="value" id="totalIncome">$0.00</span></div>
         <div class="badge owed"><span class="label">Total owed:</span><span class="value" id="totalOwed">$0.00</span></div>
-        <div class="badge left"><span class="label">Left if on budget:</span><span class="value" id="leftIfOnBudget">$0.00</span></div>
+        <div class="badge left"><span class="label">Left after paid:</span><span class="value" id="leftAfterPaid">$0.00</span></div>
         <div class="badge paidtotal"><span class="label">Paid total:</span><span class="value" id="paidTotal">$0.00</span></div>
       </div>
     </div>
-    <div class="smallhint">Marking a bill paid subtracts it from “Total owed” automatically.</div>
+    <div class="smallhint">
+      Bills are always treated as “money going out.” Even if your spreadsheet has negative amounts, the app converts them to positive owed amounts.
+      <br><b>Left after paid</b> = Income − (Paid total).
+    </div>
   </div>
 
   <!-- Income -->
@@ -506,7 +509,6 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
     <div class="smallhint">
       Supported headers (any case/spaces): <b>Name</b>, <b>DueDay</b> or <b>DueDate</b> (we keep day only),
       <b>Amount</b>, <b>Notes</b>, <b>Paid</b>, <b>Recurring</b>.
-      If amounts are negative in your sheet, we convert to positive “amount owed.”
     </div>
 
     <div style="overflow:auto; margin-top:12px;">
@@ -588,17 +590,16 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
 
 <script>
 (() => {
-  const STORAGE_KEY = "budget_app_state_v2";
+  const STORAGE_KEY = "budget_app_state_v4";
 
   let state = loadState();
   let editingId = null;
 
-  // Elements
   const monthLabelEl = document.getElementById("monthLabel");
 
   const totalIncomeEl = document.getElementById("totalIncome");
   const totalOwedEl = document.getElementById("totalOwed");
-  const leftIfOnBudgetEl = document.getElementById("leftIfOnBudget");
+  const leftAfterPaidEl = document.getElementById("leftAfterPaid");
   const paidTotalEl = document.getElementById("paidTotal");
 
   const incomeSourceEl = document.getElementById("incomeSource");
@@ -615,7 +616,6 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
   const filterEl = document.getElementById("filter");
   const importFileEl = document.getElementById("importFile");
 
-  // Buttons
   document.getElementById("addIncome").addEventListener("click", addIncome);
   document.getElementById("clearIncome").addEventListener("click", clearIncome);
 
@@ -635,7 +635,7 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
 
   monthLabelEl.addEventListener("input", () => { state.monthLabel = monthLabelEl.value.trim(); saveState(); });
 
-  // Modal elements
+  // Modal
   const modalBackdrop = document.getElementById("modalBackdrop");
   const editNameEl = document.getElementById("editName");
   const editDueEl = document.getElementById("editDue");
@@ -646,11 +646,9 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
   document.getElementById("cancelEdit").addEventListener("click", closeModal);
   document.getElementById("saveEdit").addEventListener("click", saveEdit);
 
-  // Helpers
   function uid(){
     return (crypto?.randomUUID?.() || ("id-" + Math.random().toString(16).slice(2)));
   }
-
   function escapeHtml(s){
     return String(s ?? "")
       .replaceAll("&","&amp;")
@@ -659,57 +657,57 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
       .replaceAll('"',"&quot;")
       .replaceAll("'","&#039;");
   }
-
   function fmtMoney(n){
     const v = Number(n);
     const safe = Number.isFinite(v) ? v : 0;
     return safe.toLocaleString(undefined, { style:"currency", currency:"USD" });
   }
 
-  // Treat owed amount as positive
-  function owedAmount(raw){
+  // Bills always stored as positive owed amounts
+  function normalizeBillAmount(raw){
     const n = Number(raw);
     if(!Number.isFinite(n)) return 0;
     return Math.abs(n);
   }
 
-  function todayDay(){
-    return new Date().getDate();
-  }
-
+  function todayDay(){ return new Date().getDate(); }
   function overdue(b){
     const d = Number(b.dueDay);
     if(!Number.isFinite(d) || d < 1 || d > 31) return false;
     return !b.paid && d < todayDay();
   }
-
   function cleanDue(d){
     const n = Number(d);
     if(Number.isFinite(n) && n >= 1 && n <= 31) return Math.trunc(n);
     return 999;
   }
 
+  // ✅ YOUR REQUESTED LOGIC:
+  // Left after paid = Income - Paid total
   function totals(){
     const totalIncome = state.incomes.reduce((s,i)=> s + (Number(i.amount)||0), 0);
-    const totalOwed = state.bills.filter(b=>!b.paid).reduce((s,b)=> s + owedAmount(b.amount), 0);
-    const paidTotal = state.bills.filter(b=>b.paid).reduce((s,b)=> s + owedAmount(b.amount), 0);
-    return { totalIncome, totalOwed, paidTotal, left: totalIncome - totalOwed };
+    const totalOwed = state.bills.filter(b=>!b.paid).reduce((s,b)=> s + normalizeBillAmount(b.amount), 0);
+    const paidTotal = state.bills.filter(b=>b.paid).reduce((s,b)=> s + normalizeBillAmount(b.amount), 0);
+    const leftAfterPaid = totalIncome - paidTotal;
+    return { totalIncome, totalOwed, paidTotal, leftAfterPaid };
   }
 
   function saveState(){
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }
-
   function loadState(){
     try{
       const raw = localStorage.getItem(STORAGE_KEY);
       if(!raw) return { monthLabel:"", incomes:[], bills:[] };
       const p = JSON.parse(raw);
-      return {
+      const loaded = {
         monthLabel: String(p.monthLabel || ""),
         incomes: Array.isArray(p.incomes) ? p.incomes : [],
         bills: Array.isArray(p.bills) ? p.bills : []
       };
+      // normalize old saved bills
+      loaded.bills = loaded.bills.map(b => ({ ...b, amount: normalizeBillAmount(b.amount) }));
+      return loaded;
     }catch{
       return { monthLabel:"", incomes:[], bills:[] };
     }
@@ -727,14 +725,12 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
     incomeAmountEl.value = "";
     render();
   }
-
   function clearIncome(){
     if(confirm("Clear all income lines?")){
       state.incomes = [];
       render();
     }
   }
-
   window.deleteIncome = function(id){
     state.incomes = state.incomes.filter(i => i.id !== id);
     render();
@@ -744,7 +740,7 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
   function addBill(){
     const name = billNameEl.value.trim();
     const dueDay = Number(billDueEl.value);
-    const amount = Number(billAmtEl.value || 0);
+    const amount = normalizeBillAmount(billAmtEl.value || 0);
     const notes = billNotesEl.value.trim();
     const recurring = !!billRecurringEl.checked;
 
@@ -794,7 +790,7 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
     editingId = id;
     editNameEl.value = b.name || "";
     editDueEl.value = (b.dueDay ?? "");
-    editAmtEl.value = (Number(b.amount) || 0);
+    editAmtEl.value = normalizeBillAmount(b.amount || 0);
     editNotesEl.value = b.notes || "";
     editPaidEl.checked = !!b.paid;
     editRecurringEl.checked = !!b.recurring;
@@ -815,7 +811,7 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
 
     const name = editNameEl.value.trim();
     const dueDay = Number(editDueEl.value);
-    const amount = Number(editAmtEl.value || 0);
+    const amount = normalizeBillAmount(editAmtEl.value || 0);
     const notes = editNotesEl.value.trim();
 
     if(!name) return alert("Bill name is required.");
@@ -838,7 +834,7 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
 
     const payload = {
       app: "BudgetApp",
-      version: 2,
+      version: 4,
       savedAt: new Date().toISOString(),
       monthLabel: state.monthLabel || "",
       incomes: state.incomes,
@@ -871,6 +867,7 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
         incomes: Array.isArray(data.incomes) ? data.incomes : [],
         bills: Array.isArray(data.bills) ? data.bills : []
       };
+      state.bills = state.bills.map(b => ({ ...b, amount: normalizeBillAmount(b.amount) }));
 
       render();
       alert("Month loaded.");
@@ -896,53 +893,39 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
   function normKey(k){
     return String(k || "").trim().toLowerCase().replace(/[^a-z0-9]/g,"");
   }
-
   function parseBool(v){
     if(v === true) return true;
     const s = String(v ?? "").trim().toLowerCase();
     return s === "true" || s === "yes" || s === "1" || s === "y" || s === "paid";
   }
-
-  function parseAmount(v){
+  function parseNumberLoose(v){
     if(typeof v === "number") return v;
     const cleaned = String(v || "").replace(/[^0-9.\-]/g,"");
     const n = Number(cleaned);
     return Number.isFinite(n) ? n : 0;
   }
-
   function parseDueDay(v){
     if(typeof v === "number" && v >= 1 && v <= 31) return Math.trunc(v);
-
     if(typeof v === "string" && /^\d{1,2}$/.test(v.trim())){
       const n = Number(v.trim());
       if(n >= 1 && n <= 31) return n;
     }
-
-    // ISO date
     if(typeof v === "string" && /^\d{4}-\d{2}-\d{2}/.test(v.trim())){
       const d = new Date(v.trim());
       if(!isNaN(d)) return d.getDate();
     }
-
-    // US date mm/dd/yyyy -> keep dd
     if(typeof v === "string" && /^\d{1,2}\/\d{1,2}\/\d{2,4}$/.test(v.trim())){
       const parts = v.trim().split("/");
       const dd = Number(parts[1]);
       if(Number.isFinite(dd) && dd >= 1 && dd <= 31) return dd;
     }
-
-    // Date object
     if(v instanceof Date && !isNaN(v)) return v.getDate();
-
-    // Excel serial (date)
     if(typeof v === "number" && v > 31){
       const d = XLSX.SSF.parse_date_code(v);
       if(d && d.d >= 1 && d.d <= 31) return d.d;
     }
-
     return null;
   }
-
   function pick(map, keys){
     for(const k of keys){
       const nk = normKey(k);
@@ -996,27 +979,16 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
 
       const dueRaw = pick(map, ["DueDay","DueDate","Due","DateDue","NextDue","duedate","dueday"]);
       const dueDay = parseDueDay(dueRaw);
+      if(!dueDay) continue;
 
       const amountRaw = pick(map, ["Amount","Amt","amount"]);
-      const amount = parseAmount(amountRaw);
+      const amount = normalizeBillAmount(parseNumberLoose(amountRaw));
 
       const notes = String(pick(map, ["Notes","Note","Memo"])).trim();
-
       const paid = parseBool(pick(map, ["Paid","Status"]));
       const recurring = parseBool(pick(map, ["Recurring","Repeat"]));
 
-      // IMPORTANT: dueDay is required for sorting/view; skip if missing
-      if(!dueDay) continue;
-
-      state.bills.push({
-        id: uid(),
-        name,
-        dueDay,
-        amount,
-        notes,
-        recurring,
-        paid
-      });
+      state.bills.push({ id: uid(), name, dueDay, amount, notes, recurring, paid });
     }
   }
 
@@ -1046,7 +1018,8 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
       const dueDay = parseDueDay(obj["dueday"] ?? obj["duedate"] ?? obj["due"]);
       if(!dueDay) continue;
 
-      const amount = parseAmount(obj["amount"] ?? obj["amt"]);
+      const amount = normalizeBillAmount(parseNumberLoose(obj["amount"] ?? obj["amt"]));
+
       const notes = String(obj["notes"] ?? obj["note"] ?? obj["memo"] ?? "").trim();
       const paid = parseBool(obj["paid"] ?? obj["status"]);
       const recurring = parseBool(obj["recurring"] ?? obj["repeat"]);
@@ -1055,75 +1028,19 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
     }
   }
 
-    // ===== Robust CSV import (handles quotes/commas + forgiving headers) =====
-  function splitCsvLine(line){
-    const out = [];
-    let cur = "";
-    let inQuotes = false;
-
-    for(let i=0;i<line.length;i++){
-      const ch = line[i];
-
-      if(ch === '"'){
-        // Escaped quote inside quoted field -> ""
-        if(inQuotes && line[i+1] === '"'){
-          cur += '"';
-          i++;
-        } else {
-          inQuotes = !inQuotes;
-        }
-        continue;
-      }
-
-      if(ch === "," && !inQuotes){
-        out.push(cur);
-        cur = "";
-        continue;
-      }
-
-      cur += ch;
-    }
-    out.push(cur);
-    return out;
-  }
-
-  function parseCSV(text){
-    // Normalize newlines + remove BOM if present
-    let t = String(text || "").replace(/^\uFEFF/, "");
-    t = t.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
-
-    const lines = t.split("\n").filter(l => l.trim().length);
-    if(!lines.length) return { headers: [], rows: [] };
-
-    const headers = splitCsvLine(lines[0]).map(h => h.trim());
-    const rows = [];
-
-    for(let i=1;i<lines.length;i++){
-      const cols = splitCsvLine(lines[i]);
-      // skip completely empty
-      if(cols.every(c => String(c).trim() === "")) continue;
-
-      const obj = {};
-      for(let c=0;c<headers.length;c++){
-        const key = headers[c] ?? "";
-        obj[key] = (cols[c] ?? "").trim();
-      }
-      rows.push(obj);
-    }
-    return { headers, rows };
-  }
-
-  // CSV import that is NOT case sensitive and tolerates common header names
   function importFromCSV(text){
-    const parsed = parseCSV(text);
-    if(!parsed.rows.length) return;
+    const lines = text.split(/\r?\n/).filter(l => l.trim().length);
+    if(!lines.length) return;
 
-    // Make sure headers like "Due Day", "due_day", "DUEDATE" all work
-    // Your existing importFromRows() already normalizes keys via normKey(),
-    // and pick() already checks many aliases — so we just feed it rows.
-    importFromRows(parsed.rows);
+    const headers = lines[0].split(",").map(h => h.trim());
+    const rows = lines.slice(1).map(line => {
+      const cols = line.split(",");
+      const obj = {};
+      headers.forEach((h,i)=> obj[h] = (cols[i] ?? "").trim());
+      return obj;
+    });
+    importFromRows(rows);
   }
-
 
   // Export
   function exportCSV(){
@@ -1138,7 +1055,7 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
       lines.push([
         safe(b.name),
         safe(b.dueDay ?? ""),
-        safe(b.amount),
+        safe(normalizeBillAmount(b.amount)),
         safe(b.notes),
         safe(b.paid),
         safe(!!b.recurring)
@@ -1160,20 +1077,18 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
     document.getElementById("printTitle").textContent = label ? `Monthly Summary — ${label}` : "Monthly Summary";
     document.getElementById("printMeta").textContent = "Printed: " + new Date().toLocaleString();
     document.getElementById("printTotals").textContent =
-      `Income: ${fmtMoney(t.totalIncome)}   |   Owed: ${fmtMoney(t.totalOwed)}   |   Left: ${fmtMoney(t.left)}   |   Paid: ${fmtMoney(t.paidTotal)}`;
+      `Income: ${fmtMoney(t.totalIncome)}   |   Owed (unpaid): ${fmtMoney(t.totalOwed)}   |   Left after paid: ${fmtMoney(t.leftAfterPaid)}   |   Paid: ${fmtMoney(t.paidTotal)}`;
 
-    // income list
     const inc = state.incomes.length
       ? "<ul>" + state.incomes.map(i => `<li>${escapeHtml(i.source)} — ${fmtMoney(Number(i.amount||0))}</li>`).join("") + "</ul>"
       : "<div>No income entries</div>";
     document.getElementById("printIncome").innerHTML = inc;
 
-    // bills list
     const sorted = [...state.bills].sort((a,b)=> cleanDue(a.dueDay) - cleanDue(b.dueDay));
     const bills = sorted.length
       ? "<ol>" + sorted.map(b => {
           const status = b.paid ? "PAID" : (overdue(b) ? "OVERDUE" : "UNPAID");
-          return `<li><b>${escapeHtml(b.name)}</b> — Due ${escapeHtml(b.dueDay)} — ${fmtMoney(owedAmount(b.amount))} — ${status}${b.recurring ? " (recurring)" : ""}${b.notes ? ` — ${escapeHtml(b.notes)}` : ""}</li>`;
+          return `<li><b>${escapeHtml(b.name)}</b> — Due ${escapeHtml(b.dueDay)} — ${fmtMoney(normalizeBillAmount(b.amount))} — ${status}${b.recurring ? " (recurring)" : ""}${b.notes ? ` — ${escapeHtml(b.notes)}` : ""}</li>`;
         }).join("") + "</ol>"
       : "<div>No bills</div>";
     document.getElementById("printBills").innerHTML = bills;
@@ -1227,7 +1142,7 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
         <td data-label="Status">${statusPill}</td>
         <td data-label="Bill">${escapeHtml(b.name)}</td>
         <td data-label="Due Day">${escapeHtml(due)}</td>
-        <td data-label="Amount">${fmtMoney(owedAmount(b.amount))}</td>
+        <td data-label="Amount">${fmtMoney(normalizeBillAmount(b.amount))}</td>
         <td data-label="Notes">${escapeHtml(b.notes || "")}</td>
         <td data-label="Recurring">${recurringPill}</td>
         <td data-label="Actions" class="actions">
@@ -1244,7 +1159,7 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
     const t = totals();
     totalIncomeEl.textContent = fmtMoney(t.totalIncome);
     totalOwedEl.textContent = fmtMoney(t.totalOwed);
-    leftIfOnBudgetEl.textContent = fmtMoney(t.left);
+    leftAfterPaidEl.textContent = fmtMoney(t.leftAfterPaid);
     paidTotalEl.textContent = fmtMoney(t.paidTotal);
 
     saveState();
@@ -1263,4 +1178,3 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
 
 </body>
 </html>
-
