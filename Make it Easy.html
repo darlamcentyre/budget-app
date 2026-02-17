@@ -1,0 +1,1182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Monthly Budget Tracker</title>
+
+<style>
+:root{
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+
+  /* Turquoise background */
+  --bg1:#bff7f2;
+  --bg2:#63e6df;
+  --bg3:#2fd3cb;
+
+  --card:#ffffff;
+  --border:#e8eef7;
+  --text:#163243;
+  --muted:#4b6b7e;
+
+  --teal:#0ea5a7;
+  --teal2:#14b8c4;
+  --purple:#7c3aed;
+
+  --red:#ef4444;
+  --red2:#dc2626;
+
+  --green:#22c55e;
+  --green2:#16a34a;
+
+  --paidRow:#eafff3;
+  --paidRowHover:#d6ffe8;
+
+  --unpaidRow:#ffecec;
+  --unpaidRowHover:#ffdcdc;
+
+  --overdueRow:#fff2cc;
+  --overdueRowHover:#ffe8a3;
+
+  --shadow: 0 12px 30px rgba(10,35,50,0.16);
+}
+
+*{ box-sizing:border-box; }
+
+body{
+  margin: 24px;
+  color: var(--text);
+  background:
+    radial-gradient(900px 520px at 15% 0%, rgba(255,255,255,0.55), transparent 55%),
+    radial-gradient(900px 520px at 85% 10%, rgba(255,255,255,0.35), transparent 55%),
+    radial-gradient(900px 520px at 50% 110%, rgba(124,58,237,0.10), transparent 60%),
+    linear-gradient(135deg, var(--bg1), var(--bg2) 45%, var(--bg3));
+  min-height: 100vh;
+}
+
+.wrap{ max-width: 1200px; margin: 0 auto; }
+
+h1{ margin: 0 0 6px; font-size: 30px; letter-spacing: 0.2px; }
+.mini{ font-size: 12px; color: rgba(22,50,67,0.85); font-weight: 750; }
+
+.topbar{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  align-items:flex-end;
+  justify-content:space-between;
+  margin-bottom:14px;
+}
+
+.card{
+  background: rgba(255,255,255,0.92);
+  border: 1px solid rgba(232,238,247,0.9);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: var(--shadow);
+  margin-bottom: 18px;
+  backdrop-filter: blur(6px);
+  position: relative;
+}
+
+.row{ display:flex; gap:12px; flex-wrap:wrap; align-items:end; }
+.spacer{ flex:1; }
+
+label{
+  font-size: 12px;
+  color: var(--muted);
+  display:block;
+  margin-bottom:6px;
+  font-weight: 850;
+  letter-spacing: 0.2px;
+}
+
+input, select, button{
+  border-radius: 12px;
+  border: 1px solid rgba(219,230,251,0.95);
+  background: #ffffff;
+  color: var(--text);
+  padding: 10px 12px;
+}
+
+input:focus, select:focus{
+  outline:none;
+  border-color: rgba(20,184,196,0.95);
+  box-shadow: 0 0 0 3px rgba(20,184,196,0.22);
+}
+
+button{
+  cursor:pointer;
+  font-weight: 950;
+  transition: transform 0.15s ease, filter 0.15s ease;
+  border: 0;
+  white-space: nowrap;
+}
+button:hover{ transform: translateY(-1px); filter: brightness(1.02); }
+
+.btn-primary{
+  background: linear-gradient(90deg, var(--teal), var(--teal2));
+  color: white;
+  box-shadow: 0 10px 18px rgba(14,165,167,0.22);
+}
+.btn-danger{
+  background: linear-gradient(90deg, var(--red), var(--red2));
+  color: white;
+  box-shadow: 0 10px 18px rgba(220,38,38,0.18);
+}
+.btn-secondary{
+  background: linear-gradient(90deg, var(--purple), #a855f7);
+  color: white;
+  box-shadow: 0 10px 18px rgba(124,58,237,0.16);
+}
+.btn-ghost{
+  background: rgba(255,255,255,0.8);
+  border: 1px solid rgba(219,230,251,0.95);
+  color: var(--text);
+  box-shadow: 0 8px 16px rgba(10,35,50,0.10);
+}
+
+.badges{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:flex-end;
+}
+
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(232,238,247,0.95);
+  background: rgba(255,255,255,0.95);
+  box-shadow: 0 8px 18px rgba(10,35,50,0.10);
+  font-weight: 950;
+}
+.badge .label{ font-size: 12px; color: var(--muted); }
+.badge .value{ font-size: 14px; }
+
+.badge.income .value{ color: var(--teal); }
+.badge.owed .value{ color: var(--red2); }
+.badge.left .value{ color: var(--green2); }
+
+h3{
+  margin: 0 0 10px;
+  font-size: 18px;
+  background: linear-gradient(90deg, var(--teal), var(--purple));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.smallhint{ font-size: 12px; color: rgba(75,107,126,0.95); font-weight: 750; margin-top: 8px; }
+
+table{ width:100%; border-collapse: collapse; }
+th, td{ padding: 12px; border-bottom: 1px solid rgba(238,242,250,0.95); vertical-align: middle; }
+th{
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(75,107,126,0.95);
+}
+
+tr.unpaid{ background: var(--unpaidRow); }
+tr.unpaid:hover{ background: var(--unpaidRowHover); }
+
+tr.paid{ background: var(--paidRow); }
+tr.paid:hover{ background: var(--paidRowHover); }
+
+tr.overdue{ background: var(--overdueRow); }
+tr.overdue:hover{ background: var(--overdueRowHover); }
+
+.pill{
+  display:inline-block;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 1000;
+  color: white;
+}
+.pill.paid{ background: linear-gradient(90deg, var(--green), var(--green2)); }
+.pill.unpaid{ background: linear-gradient(90deg, var(--red), var(--red2)); }
+.pill.overdue{ background: linear-gradient(90deg, #f59e0b, #d97706); }
+.pill.recurring{ background: linear-gradient(90deg, var(--purple), #a855f7); }
+
+.actions button{ margin-right: 8px; }
+.section-title{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.checkbox{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(219,230,251,0.95);
+  background: rgba(255,255,255,0.9);
+}
+.checkbox input{ width: 16px; height: 16px; }
+
+/* Printable summary panel (hidden until print) */
+.print-summary{
+  display:none;
+  background:#fff;
+  border:1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 18px;
+  margin: 18px 0;
+  box-shadow: none;
+}
+.print-title{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+}
+.print-title h2{
+  margin:0;
+  font-size: 20px;
+  color:#111827;
+}
+.print-meta{
+  font-size: 12px;
+  color:#374151;
+  text-align:right;
+  white-space:nowrap;
+}
+.print-kpis{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  margin: 12px 0 6px;
+}
+.print-kpi{
+  border:1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 10px 12px;
+  min-width: 180px;
+}
+.print-kpi .k{
+  font-size: 11px;
+  color:#6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 4px;
+}
+.print-kpi .v{
+  font-size: 16px;
+  font-weight: 900;
+  color:#111827;
+}
+.print-section{
+  margin-top: 12px;
+}
+.print-section h4{
+  margin: 14px 0 8px;
+  font-size: 14px;
+  color:#111827;
+}
+.print-table th, .print-table td{
+  padding: 8px 10px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 12px;
+}
+.print-table th{
+  color:#374151;
+}
+
+/* Print rules */
+@media print{
+  body{
+    margin: 0;
+    background: #ffffff !important;
+  }
+  .wrap{ max-width: none; }
+  /* Hide interactive UI */
+  .no-print{ display:none !important; }
+  /* Show summary */
+  .print-summary{ display:block !important; }
+  /* Remove card effects */
+  .card{
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  table{ page-break-inside: auto; }
+  tr{ page-break-inside: avoid; page-break-after: auto; }
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+  <!-- Top controls -->
+  <div class="topbar no-print">
+    <div>
+      <h1>Monthly Budget Tracker</h1>
+      <div class="mini">
+        Due day = 1–31 • Sorted least → most • Total owed decreases as you mark bills paid • Overdue highlights automatically
+      </div>
+    </div>
+
+    <div class="row" style="align-items:flex-end;">
+      <div>
+        <label>Month label</label>
+        <input id="monthLabel" placeholder="e.g., March 2026" style="min-width:220px;" />
+      </div>
+
+      <button class="btn-secondary" id="printSummaryBtn" type="button" title="Print / Save as PDF (monthly summary)">
+        Printable Summary
+      </button>
+
+      <button class="btn-secondary" id="saveMonthBtn" type="button">Save Month</button>
+      <input id="loadFileInput" type="file" accept=".json" style="display:none;" />
+      <button class="btn-secondary" id="loadMonthBtn" type="button">Load Month</button>
+
+      <button class="btn-secondary" id="duplicateMonthBtn" type="button" title="Copies income + bills, clears Paid, keeps recurring flags">
+        Duplicate Month
+      </button>
+
+      <button class="btn-danger" id="newMonthBtn" type="button" title="Clears month, but keeps recurring bills (unpaid)">
+        New Month (carry recurring)
+      </button>
+    </div>
+  </div>
+
+  <!-- PRINTABLE MONTHLY SUMMARY (shows when printing) -->
+  <div class="print-summary" id="printSummary">
+    <div class="print-title">
+      <div>
+        <h2 id="printMonthTitle">Monthly Summary</h2>
+        <div style="font-size:12px;color:#6b7280;margin-top:2px;">
+          Budget snapshot for the month
+        </div>
+      </div>
+      <div class="print-meta">
+        <div><b>Printed:</b> <span id="printDate"></span></div>
+      </div>
+    </div>
+
+    <div class="print-kpis">
+      <div class="print-kpi">
+        <div class="k">Income</div>
+        <div class="v" id="printIncome">$0.00</div>
+      </div>
+      <div class="print-kpi">
+        <div class="k">Total Owed (Unpaid Bills)</div>
+        <div class="v" id="printOwed">$0.00</div>
+      </div>
+      <div class="print-kpi">
+        <div class="k">Left If On Budget</div>
+        <div class="v" id="printLeft">$0.00</div>
+      </div>
+      <div class="print-kpi">
+        <div class="k">Paid Bills Total</div>
+        <div class="v" id="printPaidTotal">$0.00</div>
+      </div>
+    </div>
+
+    <div class="print-section">
+      <h4>Income Lines</h4>
+      <table class="print-table" style="width:100%; border-collapse:collapse;">
+        <thead>
+          <tr>
+            <th align="left">Source</th>
+            <th align="right">Amount</th>
+          </tr>
+        </thead>
+        <tbody id="printIncomeTbody"></tbody>
+      </table>
+    </div>
+
+    <div class="print-section">
+      <h4>Bills</h4>
+      <table class="print-table" style="width:100%; border-collapse:collapse;">
+        <thead>
+          <tr>
+            <th align="left">Bill</th>
+            <th align="right">Due Day</th>
+            <th align="right">Amount</th>
+            <th align="left">Status</th>
+            <th align="left">Recurring</th>
+            <th align="left">Notes</th>
+          </tr>
+        </thead>
+        <tbody id="printBillsTbody"></tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:14px; font-size:11px; color:#6b7280;">
+      Tip: In the print dialog, choose “Save as PDF” to store this monthly summary.
+    </div>
+  </div>
+
+  <!-- Totals card -->
+  <div class="card no-print">
+    <div class="section-title">
+      <h3 style="margin:0;">Totals</h3>
+      <div class="badges">
+        <div class="badge income" title="Total monthly income you entered">
+          <span class="label">Income:</span>
+          <span class="value" id="totalIncome">$0.00</span>
+        </div>
+        <div class="badge owed" title="Total owed = sum of unpaid bills">
+          <span class="label">Total owed:</span>
+          <span class="value" id="totalOwed">$0.00</span>
+        </div>
+        <div class="badge left" title="Left if on budget = Income - Unpaid bills">
+          <span class="label">Left if on budget:</span>
+          <span class="value" id="leftIfOnBudget">$0.00</span>
+        </div>
+      </div>
+    </div>
+    <div class="smallhint">Marking a bill paid subtracts it from “Total owed” automatically.</div>
+  </div>
+
+  <!-- Income -->
+  <div class="card no-print">
+    <div class="section-title">
+      <h3 style="margin:0;">Income</h3>
+      <div class="mini">Add your monthly income sources (paychecks, rentals, side income, etc.).</div>
+    </div>
+
+    <div class="row" style="margin-top:10px;">
+      <div>
+        <label>Source</label>
+        <input id="incomeSource" placeholder="Work, Side gig, Rental, etc." style="min-width:240px;" />
+      </div>
+      <div>
+        <label>Amount</label>
+        <input id="incomeAmount" type="number" step="0.01" placeholder="0.00" />
+      </div>
+      <div>
+        <label>&nbsp;</label>
+        <button class="btn-primary" id="addIncomeBtn" type="button">Add Income</button>
+      </div>
+      <div class="spacer"></div>
+      <div>
+        <label>&nbsp;</label>
+        <button class="btn-ghost" id="clearIncomeBtn" type="button" title="Clears income lines only">Clear Income</button>
+      </div>
+    </div>
+
+    <div style="overflow:auto; margin-top:12px;">
+      <table>
+        <thead>
+          <tr>
+            <th>Source</th>
+            <th>Amount</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="incomeTbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Bills -->
+  <div class="card no-print">
+    <div class="section-title">
+      <h3 style="margin:0;">Bills</h3>
+      <div class="mini">Recurring bills can carry to the next month automatically.</div>
+    </div>
+
+    <div class="row" style="margin-top:10px;">
+      <div>
+        <label>Bill name</label>
+        <input id="billName" placeholder="Power, Mortgage, etc." style="min-width:240px;" />
+      </div>
+
+      <div>
+        <label>Due day (1–31)</label>
+        <input id="dueDay" type="number" min="1" max="31" placeholder="1" />
+      </div>
+
+      <div>
+        <label>Amount</label>
+        <input id="billAmount" type="number" step="0.01" placeholder="0.00" />
+      </div>
+
+      <div class="checkbox" title="Recurring bills carry forward to new month">
+        <input id="billRecurring" type="checkbox" />
+        <label for="billRecurring" style="margin:0; font-size:12px; color:var(--muted);">Recurring</label>
+      </div>
+
+      <div style="min-width:260px; flex: 1;">
+        <label>Notes</label>
+        <input id="billNotes" placeholder="optional" style="width:100%;" />
+      </div>
+
+      <div class="spacer"></div>
+
+      <button class="btn-primary" id="addBillBtn" type="button">Add Bill</button>
+      <button class="btn-danger" id="clearBillsBtn" type="button">Clear Bills</button>
+    </div>
+
+    <hr style="margin:18px 0; border:none; border-top:1px solid rgba(232,238,247,0.95);">
+
+    <div class="row" style="align-items:end;">
+      <div>
+        <label>Import Excel / CSV</label>
+        <input id="fileInput" type="file" accept=".xlsx,.xls,.csv" />
+      </div>
+      <button class="btn-secondary" id="importBtn" type="button">Import</button>
+
+      <div class="spacer"></div>
+
+      <div>
+        <label>Filter</label>
+        <select id="filter">
+          <option value="all">All</option>
+          <option value="unpaid">Unpaid</option>
+          <option value="paid">Paid</option>
+        </select>
+      </div>
+
+      <button class="btn-secondary" id="exportBtn" type="button">Export CSV</button>
+    </div>
+
+    <div class="smallhint">
+      Import bill headers supported (any case/spaces): <b>Name</b>, <b>DueDay</b> (or “DueDate/duedate”), <b>Amount</b>, <b>Notes</b>, <b>Paid</b>, <b>Recurring</b>.
+      If you import a full date, we keep only the day-of-month.
+    </div>
+
+    <div style="overflow:auto; margin-top:12px;">
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Bill</th>
+            <th>Due day</th>
+            <th>Amount</th>
+            <th>Notes</th>
+            <th>Recurring</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="billsTbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+(() => {
+  const STORAGE_KEY = "monthly_budget_tracker_v3";
+
+  let state = loadState();
+
+  // Elements
+  const monthLabelEl = document.getElementById("monthLabel");
+  const printSummaryBtn = document.getElementById("printSummaryBtn");
+
+  const saveMonthBtn = document.getElementById("saveMonthBtn");
+  const loadMonthBtn = document.getElementById("loadMonthBtn");
+  const loadFileInput = document.getElementById("loadFileInput");
+  const duplicateMonthBtn = document.getElementById("duplicateMonthBtn");
+  const newMonthBtn = document.getElementById("newMonthBtn");
+
+  const totalIncomeEl = document.getElementById("totalIncome");
+  const totalOwedEl = document.getElementById("totalOwed");
+  const leftIfOnBudgetEl = document.getElementById("leftIfOnBudget");
+
+  const incomeSourceEl = document.getElementById("incomeSource");
+  const incomeAmountEl = document.getElementById("incomeAmount");
+  const addIncomeBtn = document.getElementById("addIncomeBtn");
+  const clearIncomeBtn = document.getElementById("clearIncomeBtn");
+  const incomeTbody = document.getElementById("incomeTbody");
+
+  const billNameEl = document.getElementById("billName");
+  const dueDayEl = document.getElementById("dueDay");
+  const billAmountEl = document.getElementById("billAmount");
+  const billNotesEl = document.getElementById("billNotes");
+  const billRecurringEl = document.getElementById("billRecurring");
+  const addBillBtn = document.getElementById("addBillBtn");
+  const clearBillsBtn = document.getElementById("clearBillsBtn");
+
+  const fileInputEl = document.getElementById("fileInput");
+  const importBtnEl = document.getElementById("importBtn");
+  const filterEl = document.getElementById("filter");
+  const exportBtnEl = document.getElementById("exportBtn");
+  const billsTbody = document.getElementById("billsTbody");
+
+  // Print summary elements
+  const printMonthTitleEl = document.getElementById("printMonthTitle");
+  const printDateEl = document.getElementById("printDate");
+  const printIncomeEl = document.getElementById("printIncome");
+  const printOwedEl = document.getElementById("printOwed");
+  const printLeftEl = document.getElementById("printLeft");
+  const printPaidTotalEl = document.getElementById("printPaidTotal");
+  const printIncomeTbody = document.getElementById("printIncomeTbody");
+  const printBillsTbody = document.getElementById("printBillsTbody");
+
+  // Helpers
+  function escapeHtml(s){
+    return String(s ?? "")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  function fmtMoney(n){
+    const v = Number(n);
+    const safe = Number.isFinite(v) ? v : 0;
+    return safe.toLocaleString(undefined, { style:"currency", currency:"USD" });
+  }
+
+  // Owed treated as positive (handles sheets that store bills as negative)
+  function toOwedAmount(raw){
+    const n = Number(raw);
+    if (!Number.isFinite(n)) return 0;
+    return Math.abs(n);
+  }
+
+  function saveState(){
+    state.monthLabel = monthLabelEl.value.trim();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  function loadState(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return { monthLabel:"", incomes:[], bills:[] };
+      const parsed = JSON.parse(raw);
+      return {
+        monthLabel: parsed.monthLabel || "",
+        incomes: Array.isArray(parsed.incomes) ? parsed.incomes : [],
+        bills: Array.isArray(parsed.bills) ? parsed.bills : []
+      };
+    }catch{
+      return { monthLabel:"", incomes:[], bills:[] };
+    }
+  }
+
+  function totals(){
+    const totalIncome = state.incomes.reduce((sum,i) => sum + (Number(i.amount) || 0), 0);
+    const totalOwed = state.bills.filter(b => !b.paid).reduce((sum,b) => sum + toOwedAmount(b.amount), 0);
+    const paidTotal = state.bills.filter(b => b.paid).reduce((sum,b) => sum + toOwedAmount(b.amount), 0);
+    const left = totalIncome - totalOwed;
+    return { totalIncome, totalOwed, paidTotal, left };
+  }
+
+  function recalcTotals(){
+    const t = totals();
+    totalIncomeEl.textContent = fmtMoney(t.totalIncome);
+    totalOwedEl.textContent = fmtMoney(t.totalOwed);
+    leftIfOnBudgetEl.textContent = fmtMoney(t.left);
+  }
+
+  function todayDayOfMonth(){
+    return new Date().getDate();
+  }
+
+  function isOverdue(b){
+    const due = Number(b.dueDay);
+    if (!Number.isFinite(due) || due < 1 || due > 31) return false;
+    if (b.paid) return false;
+    return due < todayDayOfMonth();
+  }
+
+  // Printable Summary
+  function buildPrintableSummary(){
+    const label = monthLabelEl.value.trim();
+    printMonthTitleEl.textContent = label ? `Monthly Summary — ${label}` : "Monthly Summary";
+    printDateEl.textContent = new Date().toLocaleString();
+
+    const t = totals();
+    printIncomeEl.textContent = fmtMoney(t.totalIncome);
+    printOwedEl.textContent = fmtMoney(t.totalOwed);
+    printLeftEl.textContent = fmtMoney(t.left);
+    printPaidTotalEl.textContent = fmtMoney(t.paidTotal);
+
+    // Income table
+    printIncomeTbody.innerHTML = "";
+    if (state.incomes.length === 0){
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td colspan="2" style="color:#6b7280;">No income entries</td>`;
+      printIncomeTbody.appendChild(tr);
+    } else {
+      for (const i of state.incomes){
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${escapeHtml(i.source)}</td>
+          <td align="right">${fmtMoney(Number(i.amount || 0))}</td>
+        `;
+        printIncomeTbody.appendChild(tr);
+      }
+    }
+
+    // Bills table sorted by dueDay
+    const sortedBills = [...state.bills].sort((a,b) => {
+      const da = Number(a.dueDay);
+      const db = Number(b.dueDay);
+      const va = Number.isFinite(da) && da >= 1 && da <= 31 ? da : 999;
+      const vb = Number.isFinite(db) && db >= 1 && db <= 31 ? db : 999;
+      return va - vb;
+    });
+
+    printBillsTbody.innerHTML = "";
+    if (sortedBills.length === 0){
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td colspan="6" style="color:#6b7280;">No bills</td>`;
+      printBillsTbody.appendChild(tr);
+    } else {
+      for (const b of sortedBills){
+        const status = b.paid ? "PAID" : (isOverdue(b) ? "OVERDUE" : "UNPAID");
+        const recurring = b.recurring ? "Yes" : "";
+        const due = (Number(b.dueDay) >= 1 && Number(b.dueDay) <= 31) ? String(b.dueDay) : "";
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${escapeHtml(b.name)}</td>
+          <td align="right">${escapeHtml(due)}</td>
+          <td align="right">${fmtMoney(toOwedAmount(b.amount))}</td>
+          <td>${escapeHtml(status)}</td>
+          <td>${escapeHtml(recurring)}</td>
+          <td>${escapeHtml(b.notes || "")}</td>
+        `;
+        printBillsTbody.appendChild(tr);
+      }
+    }
+  }
+
+  printSummaryBtn.addEventListener("click", () => {
+    buildPrintableSummary();
+    window.print();
+  });
+
+  // Income actions
+  window.deleteIncome = function(id){
+    state.incomes = state.incomes.filter(i => i.id !== id);
+    render();
+  };
+
+  addIncomeBtn.addEventListener("click", () => {
+    const source = incomeSourceEl.value.trim();
+    const amount = Number(incomeAmountEl.value || 0);
+
+    if(!source) return alert("Enter an income source.");
+    if(!Number.isFinite(amount)) return alert("Enter a valid income amount.");
+
+    state.incomes.push({ id: crypto.randomUUID(), source, amount });
+    incomeSourceEl.value = "";
+    incomeAmountEl.value = "";
+    render();
+  });
+
+  clearIncomeBtn.addEventListener("click", () => {
+    if(confirm("Clear all income lines for this month?")){
+      state.incomes = [];
+      render();
+    }
+  });
+
+  // Bill actions
+  window.toggleBill = function(id){
+    const b = state.bills.find(x => x.id === id);
+    if(!b) return;
+    b.paid = !b.paid;
+    render();
+  };
+
+  window.deleteBill = function(id){
+    state.bills = state.bills.filter(b => b.id !== id);
+    render();
+  };
+
+  window.toggleRecurring = function(id){
+    const b = state.bills.find(x => x.id === id);
+    if(!b) return;
+    b.recurring = !b.recurring;
+    render();
+  };
+
+  addBillBtn.addEventListener("click", () => {
+    const name = billNameEl.value.trim();
+    const dueDay = Number(dueDayEl.value);
+    const amount = Number(billAmountEl.value || 0);
+    const notes = billNotesEl.value.trim();
+    const recurring = !!billRecurringEl.checked;
+
+    if(!name) return alert("Please enter a bill name.");
+    if(!Number.isFinite(dueDay) || dueDay < 1 || dueDay > 31) return alert("Due day must be 1–31.");
+
+    state.bills.push({
+      id: crypto.randomUUID(),
+      name,
+      dueDay,
+      amount,
+      notes,
+      recurring,
+      paid: false
+    });
+
+    billNameEl.value = "";
+    dueDayEl.value = "";
+    billAmountEl.value = "";
+    billNotesEl.value = "";
+    billRecurringEl.checked = false;
+    render();
+  });
+
+  clearBillsBtn.addEventListener("click", () => {
+    if(confirm("Clear all bills for this month?")){
+      state.bills = [];
+      render();
+    }
+  });
+
+  // Month save/load/new/duplicate
+  saveMonthBtn.addEventListener("click", () => {
+    state.monthLabel = monthLabelEl.value.trim();
+
+    const payload = {
+      app: "MonthlyBudgetTracker",
+      version: 3,
+      savedAt: new Date().toISOString(),
+      monthLabel: state.monthLabel || "",
+      incomes: state.incomes,
+      bills: state.bills
+    };
+
+    const filenameSafe = (state.monthLabel || "Month")
+      .replace(/[^\w\- ]+/g, "")
+      .trim()
+      .replace(/\s+/g, "-");
+
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type:"application/json;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `${filenameSafe}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+
+  loadMonthBtn.addEventListener("click", () => {
+    loadFileInput.value = "";
+    loadFileInput.click();
+  });
+
+  loadFileInput.addEventListener("change", async () => {
+    const file = loadFileInput.files?.[0];
+    if(!file) return;
+
+    try{
+      const text = await file.text();
+      const data = JSON.parse(text);
+
+      state = {
+        monthLabel: String(data.monthLabel || ""),
+        incomes: Array.isArray(data.incomes) ? data.incomes : [],
+        bills: Array.isArray(data.bills) ? data.bills : []
+      };
+
+      render();
+      alert("Month loaded.");
+    }catch(e){
+      console.error(e);
+      alert("Could not load that file. Make sure it is a .json saved from this tracker.");
+    }
+  });
+
+  duplicateMonthBtn.addEventListener("click", () => {
+    if(!confirm("Duplicate this month?\n- Copies Income + Bills\n- Clears all Paid checkmarks\n- Keeps Recurring flags")) return;
+
+    const nextLabel = suggestNextMonthLabel(monthLabelEl.value.trim());
+    const newIncomes = state.incomes.map(i => ({ ...i, id: crypto.randomUUID() }));
+    const newBills = state.bills.map(b => ({ ...b, id: crypto.randomUUID(), paid: false }));
+
+    state = { monthLabel: nextLabel, incomes: newIncomes, bills: newBills };
+    render();
+  });
+
+  newMonthBtn.addEventListener("click", () => {
+    if(!confirm("Start a NEW month?\n- Clears Income\n- Clears non-recurring bills\n- Carries recurring bills forward (unpaid)\nTip: click Save Month first.")) return;
+
+    const nextLabel = suggestNextMonthLabel(monthLabelEl.value.trim());
+    const carried = state.bills
+      .filter(b => b.recurring)
+      .map(b => ({ ...b, id: crypto.randomUUID(), paid: false }));
+
+    state = { monthLabel: nextLabel, incomes: [], bills: carried };
+    render();
+  });
+
+  monthLabelEl.addEventListener("input", saveState);
+
+  // Import/Export Bills
+  importBtnEl.addEventListener("click", async () => {
+    const file = fileInputEl.files?.[0];
+    if(!file) return alert("Select an Excel/CSV file first.");
+
+    try{
+      if(file.name.toLowerCase().endsWith(".csv")){
+        const text = await file.text();
+        importBillsFromCSV(text);
+        render();
+        alert("Import complete.");
+        return;
+      }
+
+      const data = await file.arrayBuffer();
+      const wb = XLSX.read(data);
+      const sheet = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(sheet, { defval: "" });
+      importBillsFromRows(rows);
+
+      render();
+      alert("Import complete.");
+    }catch(e){
+      console.error(e);
+      alert("Import failed. Check headers like Name, DueDay/DueDate, Amount, Notes, Paid, Recurring.");
+    }
+  });
+
+  function normKey(k){
+    return String(k || "")
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, "");
+  }
+
+  function parseDueDay(v){
+    if(typeof v === "number" && v >= 1 && v <= 31) return Math.trunc(v);
+
+    if(typeof v === "string" && /^\d{1,2}$/.test(v.trim())){
+      const n = Number(v.trim());
+      if(n >= 1 && n <= 31) return n;
+    }
+
+    if(typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v.trim())){
+      const d = new Date(v.trim() + "T00:00:00");
+      if(!isNaN(d)) return d.getDate();
+    }
+
+    if(typeof v === "string" && /^\d{1,2}\/\d{1,2}\/\d{4}$/.test(v.trim())){
+      const parts = v.trim().split("/");
+      const dd = Number(parts[1]);
+      if(Number.isFinite(dd) && dd >= 1 && dd <= 31) return dd;
+    }
+
+    if(typeof v === "number" && v > 31){
+      const d = XLSX.SSF.parse_date_code(v);
+      if(d && d.d >= 1 && d.d <= 31) return d.d;
+    }
+
+    return null;
+  }
+
+  function parseAmount(v){
+    if(typeof v === "number") return v;
+    const cleaned = String(v || "").replace(/[^0-9.\-]/g, "");
+    const n = Number(cleaned);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function parseBool(v){
+    if (v === true) return true;
+    const s = String(v ?? "").trim().toLowerCase();
+    return s === "true" || s === "yes" || s === "1" || s === "y";
+  }
+
+  function importBillsFromRows(rows){
+    for(const r of rows){
+      const map = {};
+      for(const key of Object.keys(r)) map[normKey(key)] = r[key];
+
+      const name = String(map["name"] ?? map["bill"] ?? map["billname"] ?? map["vendor"] ?? map["payee"] ?? "").trim();
+      if(!name) continue;
+
+      const dueRaw = map["dueday"] ?? map["duedate"] ?? map["due"] ?? map["datedue"] ?? map["nextdue"] ?? "";
+      const dueDay = parseDueDay(dueRaw);
+
+      const amountRaw = map["amount"] ?? map["amt"] ?? "";
+      const amount = parseAmount(amountRaw);
+
+      const notes = String(map["notes"] ?? map["note"] ?? "").trim();
+
+      const paidRaw = map["paid"] ?? map["status"] ?? "";
+      const paid = (paidRaw === true) || ["paid","true","yes","1","y"].includes(String(paidRaw).trim().toLowerCase());
+
+      const recurringRaw = map["recurring"] ?? map["repeat"] ?? "";
+      const recurring = parseBool(recurringRaw);
+
+      state.bills.push({
+        id: crypto.randomUUID(),
+        name,
+        dueDay: (dueDay ?? null),
+        amount,
+        notes,
+        recurring,
+        paid
+      });
+    }
+  }
+
+  function importBillsFromCSV(text){
+    const lines = text.split(/\r?\n/).filter(l => l.trim().length);
+    if(!lines.length) return;
+
+    const headers = lines[0].split(",").map(h => h.trim());
+    const rows = lines.slice(1).map(line => {
+      const cols = line.split(","); // simple CSV
+      const obj = {};
+      headers.forEach((h,i) => obj[h] = (cols[i] ?? "").trim());
+      return obj;
+    });
+
+    importBillsFromRows(rows);
+  }
+
+  exportBtnEl.addEventListener("click", () => {
+    const headers = ["Name","DueDay","Amount","Notes","Paid","Recurring"];
+    const safe = (v) => {
+      const s = String(v ?? "");
+      return /[",\n]/.test(s) ? `"${s.replaceAll('"','""')}"` : s;
+    };
+
+    const lines = [headers.join(",")];
+    for(const b of state.bills){
+      lines.push([
+        safe(b.name),
+        safe(b.dueDay ?? ""),
+        safe(b.amount),
+        safe(b.notes),
+        safe(b.paid),
+        safe(!!b.recurring)
+      ].join(","));
+    }
+
+    const blob = new Blob([lines.join("\n")], { type:"text/csv;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "bills.csv";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+
+  filterEl.addEventListener("change", render);
+
+  function suggestNextMonthLabel(current){
+    const s = String(current || "").trim();
+    if (!s) return "";
+
+    const parsed = tryParseMonthYear(s);
+    if (!parsed) return s + " (Next)";
+
+    const d = new Date(parsed.year, parsed.monthIndex, 1);
+    d.setMonth(d.getMonth() + 1);
+
+    const monthName = d.toLocaleString(undefined, { month:"long" });
+    return `${monthName} ${d.getFullYear()}`;
+  }
+
+  function tryParseMonthYear(s){
+    const parts = s.replace(/\s+/g," ").trim().split(" ");
+    if (parts.length < 2) return null;
+    const year = Number(parts[parts.length - 1]);
+    if (!Number.isFinite(year) || year < 1900 || year > 3000) return null;
+
+    const monthStr = parts.slice(0, parts.length - 1).join(" ").toLowerCase();
+    const months = [
+      "january","february","march","april","may","june",
+      "july","august","september","october","november","december"
+    ];
+    const short = months.map(m => m.slice(0,3));
+
+    let idx = months.indexOf(monthStr);
+    if (idx === -1) idx = short.indexOf(monthStr.slice(0,3));
+    if (idx === -1) return null;
+
+    return { year, monthIndex: idx };
+  }
+
+  // Income actions
+  function render(){
+    monthLabelEl.value = state.monthLabel || "";
+
+    // Income table
+    incomeTbody.innerHTML = "";
+    for(const i of state.incomes){
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${escapeHtml(i.source)}</td>
+        <td>${fmtMoney(Number(i.amount || 0))}</td>
+        <td><button class="btn-danger" type="button" onclick="deleteIncome('${i.id}')">Delete</button></td>
+      `;
+      incomeTbody.appendChild(tr);
+    }
+
+    // Bills table sorted by dueDay
+    const filter = filterEl.value;
+    let view = state.bills;
+    if(filter === "paid") view = state.bills.filter(b => b.paid);
+    if(filter === "unpaid") view = state.bills.filter(b => !b.paid);
+
+    view = [...view].sort((a,b) => {
+      const da = Number(a.dueDay);
+      const db = Number(b.dueDay);
+      const va = Number.isFinite(da) && da >= 1 && da <= 31 ? da : 999;
+      const vb = Number.isFinite(db) && db >= 1 && db <= 31 ? db : 999;
+      return va - vb;
+    });
+
+    billsTbody.innerHTML = "";
+    for(const b of view){
+      const due = (Number(b.dueDay) >= 1 && Number(b.dueDay) <= 31) ? String(b.dueDay) : "";
+      const overdue = isOverdue(b);
+
+      const tr = document.createElement("tr");
+      tr.className = b.paid ? "paid" : (overdue ? "overdue" : "unpaid");
+
+      const statusPill = b.paid
+        ? `<span class="pill paid">PAID</span>`
+        : overdue
+          ? `<span class="pill overdue">OVERDUE</span>`
+          : `<span class="pill unpaid">UNPAID</span>`;
+
+      const recurringPill = b.recurring
+        ? `<span class="pill recurring">YES</span>`
+        : `<span class="mini" style="font-weight:800;">—</span>`;
+
+      tr.innerHTML = `
+        <td>${statusPill}</td>
+        <td>${escapeHtml(b.name)}</td>
+        <td>${escapeHtml(due)}</td>
+        <td>${fmtMoney(toOwedAmount(b.amount))}</td>
+        <td>${escapeHtml(b.notes || "")}</td>
+        <td>${recurringPill}</td>
+        <td class="actions">
+          <button class="btn-primary" type="button" onclick="toggleBill('${b.id}')">${b.paid ? "Mark Unpaid" : "Mark Paid"}</button>
+          <button class="btn-secondary" type="button" onclick="toggleRecurring('${b.id}')">${b.recurring ? "Unmark Recurring" : "Make Recurring"}</button>
+          <button class="btn-danger" type="button" onclick="deleteBill('${b.id}')">Delete</button>
+        </td>
+      `;
+      billsTbody.appendChild(tr);
+    }
+
+    recalcTotals();
+    saveState();
+  }
+
+  // First render
+  render();
+})();
+</script>
+</body>
+</html>
