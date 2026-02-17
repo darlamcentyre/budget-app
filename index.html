@@ -1055,19 +1055,75 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
     }
   }
 
-  function importFromCSV(text){
-    const lines = text.split(/\r?\n/).filter(l => l.trim().length);
-    if(!lines.length) return;
+    // ===== Robust CSV import (handles quotes/commas + forgiving headers) =====
+  function splitCsvLine(line){
+    const out = [];
+    let cur = "";
+    let inQuotes = false;
 
-    const headers = lines[0].split(",").map(h => h.trim());
-    const rows = lines.slice(1).map(line => {
-      const cols = line.split(",");
-      const obj = {};
-      headers.forEach((h,i)=> obj[h] = (cols[i] ?? "").trim());
-      return obj;
-    });
-    importFromRows(rows);
+    for(let i=0;i<line.length;i++){
+      const ch = line[i];
+
+      if(ch === '"'){
+        // Escaped quote inside quoted field -> ""
+        if(inQuotes && line[i+1] === '"'){
+          cur += '"';
+          i++;
+        } else {
+          inQuotes = !inQuotes;
+        }
+        continue;
+      }
+
+      if(ch === "," && !inQuotes){
+        out.push(cur);
+        cur = "";
+        continue;
+      }
+
+      cur += ch;
+    }
+    out.push(cur);
+    return out;
   }
+
+  function parseCSV(text){
+    // Normalize newlines + remove BOM if present
+    let t = String(text || "").replace(/^\uFEFF/, "");
+    t = t.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+
+    const lines = t.split("\n").filter(l => l.trim().length);
+    if(!lines.length) return { headers: [], rows: [] };
+
+    const headers = splitCsvLine(lines[0]).map(h => h.trim());
+    const rows = [];
+
+    for(let i=1;i<lines.length;i++){
+      const cols = splitCsvLine(lines[i]);
+      // skip completely empty
+      if(cols.every(c => String(c).trim() === "")) continue;
+
+      const obj = {};
+      for(let c=0;c<headers.length;c++){
+        const key = headers[c] ?? "";
+        obj[key] = (cols[c] ?? "").trim();
+      }
+      rows.push(obj);
+    }
+    return { headers, rows };
+  }
+
+  // CSV import that is NOT case sensitive and tolerates common header names
+  function importFromCSV(text){
+    const parsed = parseCSV(text);
+    if(!parsed.rows.length) return;
+
+    // Make sure headers like "Due Day", "due_day", "DUEDATE" all work
+    // Your existing importFromRows() already normalizes keys via normKey(),
+    // and pick() already checks many aliases — so we just feed it rows.
+    importFromRows(parsed.rows);
+  }
+
 
   // Export
   function exportCSV(){
@@ -1207,3 +1263,4 @@ tr.overdue:hover{ background: var(--overdueRowHover); }
 
 </body>
 </html>
+
